@@ -1,5 +1,7 @@
 # tap-s3-csv
 
+**THIS IS A FORK OF tap-postgres by singer.io**
+
 This is a [Singer](https://singer.io) tap that reads data from files located inside a given S3 bucket and produces JSON-formatted data following the [Singer spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
 
 ## How to use it
@@ -27,12 +29,17 @@ Here is an example of basic config, and a bit of a run down on each of the prope
 
 ```
 {
-    "start_date": "2017-11-02T00:00:00Z",
-    "account_id": "1234567890",
-    "role_name": "role_with_bucket_access",
-    "bucket": "my-bucket",
-    "external_id": "my_optional_secret_external_id",
-    "tables": "[{\"search_prefix\":\"exports\",\"search_pattern\":\"my_table\\\\/.*\\\\.csv\",\"table_name\":\"my_table\",\"key_properties\":\"id\",\"date_overrides\":\"created_at\",\"delimiter\":\",\"}]",
+    "aws_access_key_id": "ACCESS_KEY",
+    "aws_secret_access_key": "SECRET_ACCESS_KEY",
+    "start_date": "2000-01-01T00:00:00Z",
+    "bucket": "tradesignals-crawler",
+    "tables": [{
+        "search_prefix": "feeds",
+        "search_pattern": ".csv",
+        "table_name": "my_table",
+        "key_properties": ["id"],
+        "delimiter": ","
+    }]
 }
 ```
 
