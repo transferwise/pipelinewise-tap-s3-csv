@@ -139,6 +139,7 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
 
     to_return = []
 
+    prefix = table_spec.get('search_prefix')
     pattern = table_spec['search_pattern']
     try:
         matcher = re.compile(pattern)
@@ -155,7 +156,7 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in list_files_in_bucket(bucket, table_spec.get('search_prefix')):
+    for s3_object in list_files_in_bucket(bucket, prefix):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
 
@@ -186,7 +187,10 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
                             matched_files_count, unmatched_files_count)
 
     if 0 == matched_files_count:
-        raise Exception("No files found matching pattern {}".format(pattern))
+        if prefix:
+            raise Exception('No files found in bucket "{}" that matches prefix "{}" and pattern "{}"'.format(bucket, prefix, pattern))
+        else:
+            raise Exception('No files found in bucket "{}" that matches pattern "{}"'.format(bucket, pattern))
 
 
 @retry_pattern()
@@ -209,8 +213,8 @@ def list_files_in_bucket(bucket, search_prefix=None):
     for page in paginator.paginate(**args):
         pages += 1
         LOGGER.debug("On page %s", pages)
-        s3_object_count += len(page['Contents'])
-        yield from page['Contents']
+        s3_object_count += len(page.get('Contents', []))
+        yield from page.get('Contents', [])
 
     if 0 < s3_object_count:
         LOGGER.info("Found %s files.", s3_object_count)
