@@ -11,6 +11,11 @@ def discover_streams(config):
 
 def discover_schema(config, table_spec):
     sampled_schema = s3.get_sampled_schema_for_table(config, table_spec)
+
+    # Raise an exception if schema cannot sampled. Empty schema will fail and target side anyways
+    if not sampled_schema:
+        raise ValueError("{} - {} file(s) has no data and cannot analyse the content to generate the required schema.".format(table_spec.get('search_prefix', ''), table_spec.get('search_pattern', '')))
+
     return sampled_schema
 
 def load_metadata(table_spec, schema):
