@@ -1,12 +1,16 @@
-# tap-s3-csv
+# pipelinewise-tap-s3-csv
 
-**THIS IS A FORK OF tap-postgres by singer.io**
+[![PyPI version](https://badge.fury.io/py/pipelinewise-tap-s3-csv.svg)](https://badge.fury.io/py/pipelinewise-tap-s3-csv)
 
 This is a [Singer](https://singer.io) tap that reads data from files located inside a given S3 bucket and produces JSON-formatted data following the [Singer spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
 
+This is a [PipelineWise](https://transferwise.github.io/pipelinewise) compatible tap connector.
+
 ## How to use it
 
-`tap-s3-csv` works together with any other [Singer Target](https://singer.io) to move data from s3 to any target destination.
+The recommended method of running this tap is to use it from [PipelineWise](https://transferwise.github.io/pipelinewise). When running it from PipelineWise you don't need to configure this tap with JSON files and most of things are automated. Please check the related documentation at [Tap S3 CSV](https://transferwise.github.io/pipelinewise/connectors/taps/s3_csv.html)
+
+If you want to run this [Singer Tap](https://singer.io) independently please read further.
 
 ### Install and Run
 
@@ -77,4 +81,5 @@ A sample configuration is available inside [config.sample.json](config.sample.js
 
 ---
 
-Copyright &copy; 2018 Stitch
+Based on Stitch documentation
+
