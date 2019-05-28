@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-setup(name='tap-s3-csv-koszti',
+setup(name='pipelinewise-tap-s3-csv',
       version='1.0.3',
       description='Singer.io tap for extracting CSV files from S3',
       author='Stitch',
