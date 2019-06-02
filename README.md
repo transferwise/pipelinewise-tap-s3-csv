@@ -1,6 +1,8 @@
 # pipelinewise-tap-s3-csv
 
 [![PyPI version](https://badge.fury.io/py/pipelinewise-tap-s3-csv.svg)](https://badge.fury.io/py/pipelinewise-tap-s3-csv)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pipelinewise-tap-s3-csv.svg)](https://pypi.org/project/pipelinewise-tap-s3-csv/)
+[![License: MIT](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/GPL-3.0)
 
 This is a [Singer](https://singer.io) tap that reads data from files located inside a given S3 bucket and produces JSON-formatted data following the [Singer spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
 
@@ -21,31 +23,38 @@ installation instructions for [Mac](http://docs.python-guide.org/en/latest/start
 It's recommended to use a virtualenv:
 
 ```bash
- python3 -m venv ~/.virtualenvs/tap-s3-csv
- source ~/.virtualenvs/tap-s3-csv/bin/activate
- pip install -U pip setuptools
- pip install -e '.[dev]'
+  python3 -m venv venv
+  pip install pipelinewise-tap-s3-csv
+```
+
+or
+
+```bash
+  python3 -m venv venv
+  . venv/bin/activate
+  pip install --upgrade pip
+  pip install .
 ```
 
 ### Configuration
 
 Here is an example of basic config, and a bit of a run down on each of the properties:
 
-```
-{
-    "aws_access_key_id": "ACCESS_KEY",
-    "aws_secret_access_key": "SECRET_ACCESS_KEY",
-    "start_date": "2000-01-01T00:00:00Z",
-    "bucket": "tradesignals-crawler",
-    "tables": [{
-        "search_prefix": "feeds",
-        "search_pattern": ".csv",
-        "table_name": "my_table",
-        "key_properties": ["id"],
-        "delimiter": ","
-    }]
-}
-```
+    ```json
+    {
+        "aws_access_key_id": "ACCESS_KEY",
+        "aws_secret_access_key": "SECRET_ACCESS_KEY",
+        "start_date": "2000-01-01T00:00:00Z",
+        "bucket": "tradesignals-crawler",
+        "tables": [{
+            "search_prefix": "feeds",
+            "search_pattern": ".csv",
+            "table_name": "my_table",
+            "key_properties": ["id"],
+            "delimiter": ","
+        }]
+    }
+    ```
 
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **account_id**: This is your AWS account id
