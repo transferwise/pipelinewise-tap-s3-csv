@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='pipelinewise-tap-s3-csv',
-      version='1.0.3',
+      version='1.0.4',
       description='Singer.io tap for extracting CSV files from S3 - PipelineWise compatible',
       author='TransferWise',
       url='https://github.com/transferwise/pipelinewise-tap-s3-csv',
