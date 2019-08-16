@@ -7,7 +7,10 @@ setup(name='pipelinewise-tap-s3-csv',
       description='Singer.io tap for extracting CSV files from S3 - PipelineWise compatible',
       author='TransferWise',
       url='https://github.com/transferwise/pipelinewise-tap-s3-csv',
-      classifiers=['Programming Language :: Python :: 3 :: Only'],
+      classifiers=[
+          'License :: OSI Approved :: GNU Affero General Public License v3',
+          'Programming Language :: Python :: 3 :: Only'
+      ],
       py_modules=['tap_s3_csv'],
       install_requires=[
           'backoff==1.3.2',
