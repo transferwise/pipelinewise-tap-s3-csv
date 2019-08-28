@@ -99,6 +99,7 @@ def merge_dicts(first, second):
 
 def sample_file(config, table_spec, s3_path, sample_rate):
     file_handle = get_file_handle(config, s3_path)
+    # _raw_stream seems like the wrong way to access this..
     iterator = csv.get_row_iterator(file_handle._raw_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
@@ -156,7 +157,7 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in list_files_in_bucket(bucket, prefix, s3_endpoint_url=config['aws_endpoint_url']):
+    for s3_object in list_files_in_bucket(bucket, prefix, aws_endpoint_url=config['aws_endpoint_url']):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
 
@@ -194,13 +195,14 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
 
 
 @retry_pattern()
-def list_files_in_bucket(bucket, search_prefix=None, s3_endpoint_url=None):
+def list_files_in_bucket(bucket, search_prefix=None, aws_endpoint_url=None):
 
-    s3_client = boto3.client('s3')
 
     # override default endpoint for non aws s3 services
-    if s3_endpoint_url is not None:
-        s3_client = boto3.client('s3', endpoint_url=f"https://{s3_endpoint_url}")
+    if aws_endpoint_url is not None:
+        s3_client = boto3.client('s3', endpoint_url=f"https://{aws_endpoint_url}")
+    else:
+        s3_client = boto3.client('s3')
 
     s3_object_count = 0
 
@@ -230,7 +232,14 @@ def list_files_in_bucket(bucket, search_prefix=None, s3_endpoint_url=None):
 @retry_pattern()
 def get_file_handle(config, s3_path):
     bucket = config['bucket']
-    s3_client = boto3.resource('s3')
+    aws_endpoint_url = config['aws_endpoint_url']
+
+    # override default endpoint for non aws s3 services
+    if aws_endpoint_url is not None:
+        s3_client = boto3.resource('s3', endpoint_url=f"https://{aws_endpoint_url}")
+    else:
+        s3_client = boto3.resource('s3')
+
 
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)
