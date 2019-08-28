@@ -156,7 +156,7 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in list_files_in_bucket(bucket, prefix):
+    for s3_object in list_files_in_bucket(bucket, prefix, s3_endpoint_url=config['aws_endpoint_url']):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
 
@@ -194,8 +194,13 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
 
 
 @retry_pattern()
-def list_files_in_bucket(bucket, search_prefix=None):
+def list_files_in_bucket(bucket, search_prefix=None, s3_endpoint_url=None):
+
     s3_client = boto3.client('s3')
+
+    # override default endpoint for non aws s3 services
+    if s3_endpoint_url is not None:
+        s3_client = boto3.client('s3', endpoint_url=f"https://{s3_endpoint_url}")
 
     s3_object_count = 0
 
