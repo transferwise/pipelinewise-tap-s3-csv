@@ -2,9 +2,14 @@
 
 from setuptools import setup
 
+with open('README.md') as f:
+      long_description = f.read()
+
 setup(name='pipelinewise-tap-s3-csv',
       version='1.0.5',
       description='Singer.io tap for extracting CSV files from S3 - PipelineWise compatible',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       author='TransferWise',
       url='https://github.com/transferwise/pipelinewise-tap-s3-csv',
       classifiers=[
