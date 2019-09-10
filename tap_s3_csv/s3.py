@@ -232,7 +232,7 @@ def list_files_in_bucket(bucket, search_prefix=None, aws_endpoint_url=None):
 @retry_pattern()
 def get_file_handle(config, s3_path):
     bucket = config['bucket']
-    aws_endpoint_url = config['aws_endpoint_url']
+    aws_endpoint_url = config.get('aws_endpoint_url')
 
     # override default endpoint for non aws s3 services
     if aws_endpoint_url is not None:
