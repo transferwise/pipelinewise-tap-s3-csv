@@ -9,6 +9,9 @@ import more_itertools
 import re
 import backoff
 import boto3
+import singer
+import io
+import zipfile
 
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
@@ -156,8 +159,16 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
     :return: generator containing the samples as dictionaries
     """
     file_handle = get_file_handle(config, s3_path)
-    # _raw_stream seems like the wrong way to access this..
-    iterator = get_row_iterator(file_handle._raw_stream, table_spec)  # pylint:disable=protected-access
+    # _raw_stream seems like the wrong way to access this..    
+    # if csv is zipped, unzip it
+    stream = None
+    if s3_path.endswith('zip'):
+        LOGGER.info('decompress stream')
+        stream = stream_zip_decompress(file_handle._raw_stream)
+    else:
+        stream = file_handle._raw_stream
+    
+    iterator = csv.get_row_iterator(file_handle._raw_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
 
@@ -328,3 +339,8 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)
     return s3_object.get()['Body']
+
+def stream_zip_decompress(stream):
+    buffer = io.BytesIO(stream.read())
+    z = zipfile.ZipFile(buffer)
+    return z.open(z.infolist()[0])
