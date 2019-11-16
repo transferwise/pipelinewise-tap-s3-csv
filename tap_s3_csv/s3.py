@@ -99,7 +99,15 @@ def merge_dicts(first, second):
 
 def sample_file(config, table_spec, s3_path, sample_rate):
     file_handle = get_file_handle(config, s3_path)
-    # _raw_stream seems like the wrong way to access this..
+    # _raw_stream seems like the wrong way to access this..    
+    # if csv is zipped, unzip it
+    stream = None
+    if s3_path.endswith('zip'):
+        LOGGER.info('decompress stream')
+        stream = stream_zip_decompress(file_handle._raw_stream)
+    else:
+        stream = file_handle._raw_stream
+    
     iterator = csv.get_row_iterator(file_handle._raw_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
@@ -244,3 +252,8 @@ def get_file_handle(config, s3_path):
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)
     return s3_object.get()['Body']
+
+def stream_zip_decompress(stream):
+    buffer = io.BytesIO(stream.read())
+    z = zipfile.ZipFile(buffer)
+    return z.open(z.infolist()[0])
