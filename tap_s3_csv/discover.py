@@ -1,11 +1,23 @@
+import singer
 from singer import metadata
 from tap_s3_csv import s3
+
+LOGGER = singer.get_logger()
 
 def discover_streams(config):
     streams = []
 
     for table_spec in config['tables']:
         schema = discover_schema(config, table_spec)
+        
+        # exclude fields according to configuration
+        fields_to_exclude = table_spec.get('exclude_properties', [])
+        for field_name in fields_to_exclude:
+            if field_name in schema['properties']:
+                del schema['properties'][field_name]
+            else:
+                LOGGER.info('%s field not found in schema', field_name)
+            
         streams.append({'stream': table_spec['table_name'], 'tap_stream_id': table_spec['table_name'], 'schema': schema, 'metadata': load_metadata(table_spec, schema)})
     return streams
 
