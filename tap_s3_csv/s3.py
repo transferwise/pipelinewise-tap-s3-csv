@@ -340,6 +340,17 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     s3_object = s3_bucket.Object(s3_path)
     return s3_object.get()['Body']
 
+def get_file_stream(config, s3_path):
+    file_handle = get_file_handle(config, s3_path)
+    # if csv is zipped, unzip it
+    stream = None
+    if s3_path.endswith('zip'):
+        LOGGER.info('decompress stream')
+        stream = stream_zip_decompress(file_handle._raw_stream)
+    else:
+        stream = file_handle._raw_stream
+    return stream
+
 def stream_zip_decompress(stream):
     buffer = io.BytesIO(stream.read())
     z = zipfile.ZipFile(buffer)

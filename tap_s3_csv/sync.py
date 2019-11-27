@@ -65,7 +65,7 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     bucket = config['bucket']
     table_name = table_spec['table_name']
 
-    s3_file_handle = s3.get_file_handle(config, s3_path)
+    s3_file_stream = s3.get_file_stream(config, s3_path)
     # We observed data who's field size exceeded the default maximum of
     # 131072. We believe the primary consequence of the following setting
     # is that a malformed, wide CSV would potentially parse into a single
@@ -74,7 +74,8 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     # need to be fixed. The other consequence of this could be larger
     # memory consumption but that's acceptable as well.
     csv.field_size_limit(sys.maxsize)
-    iterator = get_row_iterator(s3_file_handle._raw_stream, table_spec)  # pylint:disable=protected-access
+    iterator = singer_encodings_csv.get_row_iterator(
+        s3_file_stream, table_spec) #pylint:disable=protected-access
 
     records_synced = 0
 
