@@ -4,14 +4,8 @@ import backoff
 import boto3
 import singer
 
-from botocore.credentials import (
-    AssumeRoleCredentialFetcher,
-    CredentialResolver,
-    DeferredRefreshableCredentials,
-    JSONFileCache
-)
+from botocore.credentials import DeferredRefreshableCredentials
 from botocore.exceptions import ClientError
-from botocore.session import Session
 from singer_encodings import csv
 from tap_s3_csv import conversion
 
@@ -138,8 +132,6 @@ def sample_files(config, table_spec, s3_files,
 def get_input_files_for_table(config, table_spec, modified_since=None):
     bucket = config['bucket']
 
-    to_return = []
-
     prefix = table_spec.get('search_prefix')
     pattern = table_spec['search_pattern']
     try:
@@ -197,10 +189,9 @@ def get_input_files_for_table(config, table_spec, modified_since=None):
 @retry_pattern()
 def list_files_in_bucket(bucket, search_prefix=None, aws_endpoint_url=None):
 
-
     # override default endpoint for non aws s3 services
     if aws_endpoint_url is not None:
-        s3_client = boto3.client('s3', endpoint_url=f"https://{aws_endpoint_url}")
+        s3_client = boto3.client('s3', endpoint_url=aws_endpoint_url)
     else:
         s3_client = boto3.client('s3')
 
@@ -236,10 +227,9 @@ def get_file_handle(config, s3_path):
 
     # override default endpoint for non aws s3 services
     if aws_endpoint_url is not None:
-        s3_client = boto3.resource('s3', endpoint_url=f"https://{aws_endpoint_url}")
+        s3_client = boto3.resource('s3', endpoint_url=aws_endpoint_url)
     else:
         s3_client = boto3.resource('s3')
-
 
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)
