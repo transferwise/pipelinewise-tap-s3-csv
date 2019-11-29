@@ -9,16 +9,18 @@ jobs:
           name: 'Setup virtual env'
           command: |
             virtualenv -p python3 /usr/local/share/virtualenvs/tap-s3-csv
-            source /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
-            pip install .
-            pip install pylint
-            pylint tap_s3_csv -d missing-docstring,invalid-name,line-too-long,too-many-locals,too-few-public-methods,fixme,stop-iteration-return,broad-except
+            . /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
+            pip3 install .[test]
+      - run:
+          name: 'Pylinting'
+          command: |
+            . /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
+            pylint --rcfile .pylintrc tap_s3_csv/
       - run:
           name: 'Unit Tests'
           command: |
-            source /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
-            pip install nose
-            nosetests
+            . /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
+            nosetests tests
       - add_ssh_keys
       - run:
           name: 'Integration Tests'
