@@ -1,4 +1,4 @@
-import json
+import ujson
 import sys
 import singer
 
@@ -19,7 +19,7 @@ def do_discover(config):
     if not streams:
         raise Exception("No streams found")
     catalog = {"streams": streams}
-    json.dump(catalog, sys.stdout, indent=2)
+    ujson.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
 
@@ -48,6 +48,7 @@ def do_sync(config, catalog, state):
 
     LOGGER.info('Done syncing.')
 
+
 @singer.utils.handle_top_exception(LOGGER)
 def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
@@ -57,7 +58,7 @@ def main():
     config['tables'] = CONFIG_CONTRACT(config.get('tables', {}))
 
     try:
-        for page in s3.list_files_in_bucket(config['bucket']):
+        for _ in s3.list_files_in_bucket(config['bucket']):
             break
         LOGGER.warning("I have direct access to the bucket without assuming the configured role.")
     except:

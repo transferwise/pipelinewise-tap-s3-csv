@@ -22,7 +22,8 @@ setup(name='pipelinewise-tap-s3-csv',
           'boto3==1.9.57',
           'singer-encodings==0.0.3',
           'singer-python==5.1.5',
-          'voluptuous==0.10.5'
+          'voluptuous==0.10.5',
+          'ujson==1.35.*',
       ],
       extras_require={
           'dev': [
