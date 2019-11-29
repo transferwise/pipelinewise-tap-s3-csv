@@ -1,3 +1,6 @@
+"""
+Module to guess csv columns' types and build Json schema.
+"""
 import csv
 import io
 import singer
@@ -10,6 +13,12 @@ LOGGER = singer.get_logger()
 
 
 def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
+    """
+    Guess columns types from the given samples and build json schema
+    :param samples: List of dictionaries containing samples data from csv file(s)
+    :param table_spec: table/stream specs given in the tap definition
+    :return: dictionary where the keys are the headers and values are the guessed types - compatible with json schema
+    """
     counts = {}
 
     table_set = CSVTableSet(_csv2bytesio(samples))
@@ -34,7 +43,7 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
                 ]
             }
         else:
-            if isinstance(header_type, DateType) or isinstance(header_type, DateUtilType):
+            if isinstance(header_type, (DateType, DateUtilType)):
                 counts[header] = {
                     'anyOf': [
                         {'type': ['null', 'string'], 'format': 'date'},
@@ -59,8 +68,8 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
 def _csv2bytesio(data: List[Dict])-> io.BytesIO:
     """
     Converts a list of dictionaries to a csv BytesIO which is a csv file like object
-    :param data: List of dictionaries
-    :return:
+    :param data: List of dictionaries to turn into csv like structure
+    :return: BytesIO, a file like object in memory
     """
     sio = io.StringIO()
 
@@ -69,9 +78,9 @@ def _csv2bytesio(data: List[Dict])-> io.BytesIO:
     for datum in data:
         header.update(list(datum.keys()))
 
-    cw = csv.DictWriter(sio, fieldnames=header)
+    writer = csv.DictWriter(sio, fieldnames=header)
 
-    cw.writeheader()
-    cw.writerows(data)
+    writer.writeheader()
+    writer.writerows(data)
 
     return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))

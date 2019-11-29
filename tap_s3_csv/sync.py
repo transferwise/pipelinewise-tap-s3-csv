@@ -1,19 +1,29 @@
+"""
+Syncing related functions
+"""
+
 import sys
 import csv
+from typing import Dict
 
-from singer import metadata
-from singer import Transformer
-from singer import utils
-
-import singer
-from singer_encodings import csv as singer_encodings_csv
+from singer import metadata, get_logger, Transformer, utils, get_bookmark, write_bookmark, write_state, write_record
+from singer_encodings.csv import get_row_iterator # pylint:disable=no-name-in-module
 from tap_s3_csv import s3
 
-LOGGER = singer.get_logger()
+LOGGER = get_logger()
 
-def sync_stream(config, state, table_spec, stream):
+
+def sync_stream(config: Dict, state: Dict, table_spec: Dict, stream: Dict) -> int:
+    """
+    Sync the stream
+    :param config: Connection and stream config
+    :param state: current state
+    :param table_spec: table specs
+    :param stream: stream
+    :return: count of streamed records
+    """
     table_name = table_spec['table_name']
-    modified_since = utils.strptime_with_tz(singer.get_bookmark(state, table_name, 'modified_since') or
+    modified_since = utils.strptime_with_tz(get_bookmark(state, table_name, 'modified_since') or
                                             config['start_date'])
 
     LOGGER.info('Syncing table "%s".', table_name)
@@ -32,14 +42,23 @@ def sync_stream(config, state, table_spec, stream):
         records_streamed += sync_table_file(
             config, s3_file['key'], table_spec, stream)
 
-        state = singer.write_bookmark(state, table_name, 'modified_since', s3_file['last_modified'].isoformat())
-        singer.write_state(state)
+        state = write_bookmark(state, table_name, 'modified_since', s3_file['last_modified'].isoformat())
+        write_state(state)
 
     LOGGER.info('Wrote %s records for table "%s".', records_streamed, table_name)
 
     return records_streamed
 
-def sync_table_file(config, s3_path, table_spec, stream):
+
+def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) -> int:
+    """
+    Sync a given csv found file
+    :param config: tap configuration
+    :param s3_path: file path given by S3
+    :param table_spec: tables specs
+    :param stream: Stream data
+    :return: number of streamed records
+    """
     LOGGER.info('Syncing file "%s".', s3_path)
 
     bucket = config['bucket']
@@ -54,8 +73,8 @@ def sync_table_file(config, s3_path, table_spec, stream):
     # need to be fixed. The other consequence of this could be larger
     # memory consumption but that's acceptable as well.
     csv.field_size_limit(sys.maxsize)
-    iterator = singer_encodings_csv.get_row_iterator(
-        s3_file_handle._raw_stream, table_spec) #pylint:disable=protected-access
+    iterator = get_row_iterator(
+        s3_file_handle._raw_stream, table_spec)  # pylint:disable=protected-access
 
     records_synced = 0
 
@@ -72,7 +91,7 @@ def sync_table_file(config, s3_path, table_spec, stream):
         with Transformer() as transformer:
             to_write = transformer.transform(rec, stream['schema'], metadata.to_map(stream['metadata']))
 
-        singer.write_record(table_name, to_write)
+        write_record(table_name, to_write)
         records_synced += 1
 
     return records_synced
