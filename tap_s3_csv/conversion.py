@@ -1,98 +1,77 @@
+import csv
+import io
 import singer
+
+from typing import Dict, List
+from messytables import CSVTableSet, headers_guess, headers_processor, offset_processor, type_guess
+from messytables.types import DateType, DecimalType, BoolType, IntegerType, DateUtilType
 
 LOGGER = singer.get_logger()
 
-def infer(datum):
-    """
-    Returns the inferred data type
-    """
-    if datum is None or datum == '':
-        return None
 
-    try:
-        int(datum)
-        return 'integer'
-    except (ValueError, TypeError):
-        pass
-
-    try:
-        #numbers are NOT floats, they are DECIMALS
-        float(datum)
-        return 'number'
-    except (ValueError, TypeError):
-        pass
-
-    return 'string'
-
-
-def count_sample(sample, counts, table_spec):
-    for key, value in sample.items():
-        if key not in counts:
-            counts[key] = {}
-
-        date_overrides = table_spec.get('date_overrides', [])
-        if key in date_overrides:
-            datatype = "date-time"
-        else:
-            datatype = infer(value)
-
-        if datatype is not None:
-            counts[key][datatype] = counts[key].get(datatype, 0) + 1
-
-    return counts
-
-
-def pick_datatype(counts):
-    """
-    If the underlying records are ONLY of type `integer`, `number`,
-    or `date-time`, then return that datatype.
-
-    If the underlying records are of type `integer` and `number` only,
-    return `number`.
-
-    Otherwise return `string`.
-    """
-    to_return = 'string'
-
-    if counts.get('date-time', 0) > 0:
-        return 'date-time'
-
-    if len(counts) == 1:
-        if counts.get('integer', 0) > 0:
-            to_return = 'integer'
-        elif counts.get('number', 0) > 0:
-            to_return = 'number'
-
-    elif(len(counts) == 2 and
-         counts.get('integer', 0) > 0 and
-         counts.get('number', 0) > 0):
-        to_return = 'number'
-
-    return to_return
-
-
-def generate_schema(samples, table_spec):
+def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
     counts = {}
-    for sample in samples:
-        # {'name' : { 'string' : 45}}
-        counts = count_sample(sample, counts, table_spec)
 
-    for key, value in counts.items():
-        datatype = pick_datatype(value)
+    table_set = CSVTableSet(_csv2bytesio(samples))
 
-        if datatype == 'date-time':
-            counts[key] = {
+    row_set = table_set.tables[0]
+
+    offset, headers = headers_guess(row_set.sample)
+    row_set.register_processor(headers_processor(headers))
+    row_set.register_processor(offset_processor(offset + 1))
+
+    types = type_guess(row_set.sample, strict=True)
+
+    for header, header_type in zip(headers, types):
+
+        date_overrides = set(table_spec.get('date_overrides', []))
+
+        if header in date_overrides:
+            counts[header] = {
                 'anyOf': [
                     {'type': ['null', 'string'], 'format': 'date-time'},
                     {'type': ['null', 'string']}
                 ]
             }
         else:
-            types = ['null', datatype]
-            if datatype != 'string':
-                types.append('string')
-            counts[key] = {
-                'type': types,
-            }
+            if isinstance(header_type, DateType) or isinstance(header_type, DateUtilType):
+                counts[header] = {
+                    'anyOf': [
+                        {'type': ['null', 'string'], 'format': 'date'},
+                        {'type': ['null', 'string']}
+                    ]
+                }
+            else:
+                counts[header] = {
+                    'type': ['null', 'string']
+                }
+
+                if isinstance(header_type, IntegerType):
+                    counts[header]['type'].append('integer')
+                elif isinstance(header_type, DecimalType):
+                    counts[header]['type'].append('number')
+                elif isinstance(header_type, BoolType):
+                    counts[header]['type'].append('boolean')
 
     return counts
+
+
+def _csv2bytesio(data: List[Dict])-> io.BytesIO:
+    """
+    Converts a list of dictionaries to a csv BytesIO which is a csv file like object
+    :param data: List of dictionaries
+    :return:
+    """
+    sio = io.StringIO()
+
+    header = set()
+
+    for datum in data:
+        header.update(list(datum.keys()))
+
+    cw = csv.DictWriter(sio, fieldnames=header)
+
+    cw.writeheader()
+    cw.writerows(data)
+
+    return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
