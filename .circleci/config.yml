@@ -8,8 +8,9 @@ jobs:
       - run:
           name: 'Setup virtual env'
           command: |
-            virtualenv -p python3 /usr/local/share/virtualenvs/tap-s3-csv
+            python3 -m venv /usr/local/share/virtualenvs/tap-s3-csv
             . /usr/local/share/virtualenvs/tap-s3-csv/bin/activate
+            pip3 install --upgrade pip
             pip3 install .[test]
       - run:
           name: 'Pylinting'
