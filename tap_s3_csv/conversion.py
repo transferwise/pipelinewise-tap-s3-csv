@@ -71,16 +71,16 @@ def _csv2bytesio(data: List[Dict])-> io.BytesIO:
     :param data: List of dictionaries to turn into csv like structure
     :return: BytesIO, a file like object in memory
     """
-    sio = io.StringIO()
+    with io.StringIO() as sio:
 
-    header = set()
+        header = set()
 
-    for datum in data:
-        header.update(list(datum.keys()))
+        for datum in data:
+            header.update(list(datum.keys()))
 
-    writer = csv.DictWriter(sio, fieldnames=header)
+        writer = csv.DictWriter(sio, fieldnames=header)
 
-    writer.writeheader()
-    writer.writerows(data)
+        writer.writeheader()
+        writer.writerows(data)
 
-    return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
+        return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
