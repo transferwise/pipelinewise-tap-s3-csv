@@ -1,7 +1,12 @@
-import json
+"""
+Tap S3 csv main script
+"""
+
 import sys
+import ujson
 import singer
 
+from typing import Dict
 from singer import metadata
 from tap_s3_csv.discover import discover_streams
 from tap_s3_csv import s3
@@ -13,21 +18,39 @@ LOGGER = singer.get_logger()
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket", "aws_access_key_id", "aws_secret_access_key"]
 
 
-def do_discover(config):
+def do_discover(config: Dict) -> None:
+    """
+    Discovers the source by connecting to the it and collecting information about the given tables/streams,
+    it dumps the information to stdout
+    :param config: connection and streams information
+    :return: nothing
+    """
     LOGGER.info("Starting discover")
     streams = discover_streams(config)
     if not streams:
         raise Exception("No streams found")
     catalog = {"streams": streams}
-    json.dump(catalog, sys.stdout, indent=2)
+    ujson.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
 
-def stream_is_selected(mdata):
-    return mdata.get((), {}).get('selected', False)
+def stream_is_selected(meta_data: Dict) -> bool:
+    """
+    Detects whether the stream is selected to be synced
+    :param meta_data: stream metadata
+    :return: True if selected, False otherwise
+    """
+    return meta_data.get((), {}).get('selected', False)
 
 
-def do_sync(config, catalog, state):
+def do_sync(config: Dict, catalog: Dict, state: Dict) -> None:
+    """
+    Syncs every selected stream in the catalog and updates the state
+    :param config: connection and streams information
+    :param catalog: Streams catalog
+    :param state: current state
+    :return: Nothing
+    """
     LOGGER.info('Starting sync.')
 
     for stream in catalog['streams']:
@@ -48,8 +71,13 @@ def do_sync(config, catalog, state):
 
     LOGGER.info('Done syncing.')
 
+
 @singer.utils.handle_top_exception(LOGGER)
-def main():
+def main() -> None:
+    """
+    Main function
+    :return: None
+    """
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     config = args.config
 
@@ -57,10 +85,10 @@ def main():
     config['tables'] = CONFIG_CONTRACT(config.get('tables', {}))
 
     try:
-        for page in s3.list_files_in_bucket(config['bucket']):
+        for _ in s3.list_files_in_bucket(config['bucket']):
             break
         LOGGER.warning("I have direct access to the bucket without assuming the configured role.")
-    except:
+    except Exception:
         s3.setup_aws_client(config)
 
     if args.discover:
