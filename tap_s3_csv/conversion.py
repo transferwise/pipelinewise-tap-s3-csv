@@ -19,7 +19,7 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
     :param table_spec: table/stream specs given in the tap definition
     :return: dictionary where the keys are the headers and values are the guessed types - compatible with json schema
     """
-    counts = {}
+    schema = {}
 
     table_set = CSVTableSet(_csv2bytesio(samples))
 
@@ -36,7 +36,7 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
         date_overrides = set(table_spec.get('date_overrides', []))
 
         if header in date_overrides:
-            counts[header] = {
+            schema[header] = {
                 'anyOf': [
                     {'type': ['null', 'string'], 'format': 'date-time'},
                     {'type': ['null', 'string']}
@@ -44,25 +44,25 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
             }
         else:
             if isinstance(header_type, (DateType, DateUtilType)):
-                counts[header] = {
+                schema[header] = {
                     'anyOf': [
                         {'type': ['null', 'string'], 'format': 'date'},
                         {'type': ['null', 'string']}
                     ]
                 }
             else:
-                counts[header] = {
+                schema[header] = {
                     'type': ['null', 'string']
                 }
 
                 if isinstance(header_type, IntegerType):
-                    counts[header]['type'].append('integer')
+                    schema[header]['type'].append('integer')
                 elif isinstance(header_type, DecimalType):
-                    counts[header]['type'].append('number')
+                    schema[header]['type'].append('number')
                 elif isinstance(header_type, BoolType):
-                    counts[header]['type'].append('boolean')
+                    schema[header]['type'].append('boolean')
 
-    return counts
+    return schema
 
 
 def _csv2bytesio(data: List[Dict])-> io.BytesIO:
@@ -71,16 +71,16 @@ def _csv2bytesio(data: List[Dict])-> io.BytesIO:
     :param data: List of dictionaries to turn into csv like structure
     :return: BytesIO, a file like object in memory
     """
-    sio = io.StringIO()
+    with io.StringIO() as sio:
 
-    header = set()
+        header = set()
 
-    for datum in data:
-        header.update(list(datum.keys()))
+        for datum in data:
+            header.update(list(datum.keys()))
 
-    writer = csv.DictWriter(sio, fieldnames=header)
+        writer = csv.DictWriter(sio, fieldnames=header)
 
-    writer.writeheader()
-    writer.writerows(data)
+        writer.writeheader()
+        writer.writerows(data)
 
-    return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
+        return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
