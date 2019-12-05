@@ -17,7 +17,7 @@ def discover_streams(config: Dict)-> List[Dict]:
 
     for table_spec in config['tables']:
         schema = discover_schema(config, table_spec)
-        
+
         # exclude fields according to configuration
         fields_to_exclude = table_spec.get('exclude_properties', [])
         for field_name in fields_to_exclude:
