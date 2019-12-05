@@ -122,7 +122,7 @@ def sample_file(config, table_spec, s3_path, sample_rate):
     :return: generator containing the samples as dictionaries
     """
     file_stream = get_file_stream(config, s3_path)
-    
+
     iterator = get_row_iterator(file_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
@@ -294,7 +294,14 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     s3_object = s3_bucket.Object(s3_path)
     return s3_object.get()['Body']
 
-def get_file_stream(config, s3_path):
+def get_file_stream(config: Dict, s3_path: str) -> Iterator:
+    """
+    Get file stream to the file located in the s3 path.
+    It automatically decompress the file if it is zipped.
+    :param config: tap config
+    :param s3_path: file path in S3
+    :return: file stream
+    """
     file_handle = get_file_handle(config, s3_path)
     # if csv is zipped, unzip it
     stream = None
@@ -305,7 +312,12 @@ def get_file_stream(config, s3_path):
         stream = file_handle._raw_stream
     return stream
 
-def stream_zip_decompress(stream):
+def stream_zip_decompress(stream: Iterator) -> Iterator:
+    """
+    Decompress first file of a zipped file stream
+    :param stream: file stream
+    :return: uncompressed file stream
+    """
     buffer = io.BytesIO(stream.read())
-    z = zipfile.ZipFile(buffer)
-    return z.open(z.infolist()[0])
+    file = zipfile.ZipFile(buffer)
+    return file.open(file.infolist()[0])
