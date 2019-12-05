@@ -1,98 +1,86 @@
+"""
+Module to guess csv columns' types and build Json schema.
+"""
+import csv
+import io
 import singer
+
+from typing import Dict, List
+from messytables import CSVTableSet, headers_guess, headers_processor, offset_processor, type_guess
+from messytables.types import DateType, DecimalType, BoolType, IntegerType, DateUtilType
 
 LOGGER = singer.get_logger()
 
-def infer(datum):
+
+def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
     """
-    Returns the inferred data type
+    Guess columns types from the given samples and build json schema
+    :param samples: List of dictionaries containing samples data from csv file(s)
+    :param table_spec: table/stream specs given in the tap definition
+    :return: dictionary where the keys are the headers and values are the guessed types - compatible with json schema
     """
-    if datum is None or datum == '':
-        return None
+    schema = {}
 
-    try:
-        int(datum)
-        return 'integer'
-    except (ValueError, TypeError):
-        pass
+    table_set = CSVTableSet(_csv2bytesio(samples))
 
-    try:
-        #numbers are NOT floats, they are DECIMALS
-        float(datum)
-        return 'number'
-    except (ValueError, TypeError):
-        pass
+    row_set = table_set.tables[0]
 
-    return 'string'
+    offset, headers = headers_guess(row_set.sample)
+    row_set.register_processor(headers_processor(headers))
+    row_set.register_processor(offset_processor(offset + 1))
 
+    types = type_guess(row_set.sample, strict=True)
 
-def count_sample(sample, counts, table_spec):
-    for key, value in sample.items():
-        if key not in counts:
-            counts[key] = {}
+    for header, header_type in zip(headers, types):
 
-        date_overrides = table_spec.get('date_overrides', [])
-        if key in date_overrides:
-            datatype = "date-time"
-        else:
-            datatype = infer(value)
+        date_overrides = set(table_spec.get('date_overrides', []))
 
-        if datatype is not None:
-            counts[key][datatype] = counts[key].get(datatype, 0) + 1
-
-    return counts
-
-
-def pick_datatype(counts):
-    """
-    If the underlying records are ONLY of type `integer`, `number`,
-    or `date-time`, then return that datatype.
-
-    If the underlying records are of type `integer` and `number` only,
-    return `number`.
-
-    Otherwise return `string`.
-    """
-    to_return = 'string'
-
-    if counts.get('date-time', 0) > 0:
-        return 'date-time'
-
-    if len(counts) == 1:
-        if counts.get('integer', 0) > 0:
-            to_return = 'integer'
-        elif counts.get('number', 0) > 0:
-            to_return = 'number'
-
-    elif(len(counts) == 2 and
-         counts.get('integer', 0) > 0 and
-         counts.get('number', 0) > 0):
-        to_return = 'number'
-
-    return to_return
-
-
-def generate_schema(samples, table_spec):
-    counts = {}
-    for sample in samples:
-        # {'name' : { 'string' : 45}}
-        counts = count_sample(sample, counts, table_spec)
-
-    for key, value in counts.items():
-        datatype = pick_datatype(value)
-
-        if datatype == 'date-time':
-            counts[key] = {
+        if header in date_overrides:
+            schema[header] = {
                 'anyOf': [
                     {'type': ['null', 'string'], 'format': 'date-time'},
                     {'type': ['null', 'string']}
                 ]
             }
         else:
-            types = ['null', datatype]
-            if datatype != 'string':
-                types.append('string')
-            counts[key] = {
-                'type': types,
-            }
+            if isinstance(header_type, (DateType, DateUtilType)):
+                schema[header] = {
+                    'anyOf': [
+                        {'type': ['null', 'string'], 'format': 'date'},
+                        {'type': ['null', 'string']}
+                    ]
+                }
+            else:
+                schema[header] = {
+                    'type': ['null', 'string']
+                }
 
-    return counts
+                if isinstance(header_type, IntegerType):
+                    schema[header]['type'].append('integer')
+                elif isinstance(header_type, DecimalType):
+                    schema[header]['type'].append('number')
+                elif isinstance(header_type, BoolType):
+                    schema[header]['type'].append('boolean')
+
+    return schema
+
+
+def _csv2bytesio(data: List[Dict])-> io.BytesIO:
+    """
+    Converts a list of dictionaries to a csv BytesIO which is a csv file like object
+    :param data: List of dictionaries to turn into csv like structure
+    :return: BytesIO, a file like object in memory
+    """
+    with io.StringIO() as sio:
+
+        header = set()
+
+        for datum in data:
+            header.update(list(datum.keys()))
+
+        writer = csv.DictWriter(sio, fieldnames=header)
+
+        writer.writeheader()
+        writer.writerows(data)
+
+        return io.BytesIO(sio.getvalue().strip('\r\n').encode('utf-8'))
