@@ -7,7 +7,7 @@ import singer
 
 from typing import Dict, List
 from messytables import CSVTableSet, headers_guess, headers_processor, offset_processor, type_guess
-from messytables.types import DateType, DecimalType, BoolType, IntegerType, DateUtilType
+from messytables.types import DecimalType, IntegerType
 
 LOGGER = singer.get_logger()
 
@@ -36,36 +36,25 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
         date_overrides = set(table_spec.get('date_overrides', []))
 
         if header in date_overrides:
-            schema[header] = {
-                'anyOf': [
-                    {'type': ['null', 'string'], 'format': 'date-time'},
-                    {'type': ['null', 'string']}
-                ]
-            }
+            schema[header] = {'type': ['null', 'string'], 'format': 'date-time'}
         else:
-            if isinstance(header_type, (DateType, DateUtilType)):
+            if isinstance(header_type, IntegerType):
                 schema[header] = {
-                    'anyOf': [
-                        {'type': ['null', 'string'], 'format': 'date'},
-                        {'type': ['null', 'string']}
-                    ]
+                    'type': ['null', 'integer']
+                }
+            elif isinstance(header_type, DecimalType):
+                schema[header] = {
+                    'type': ['null', 'number']
                 }
             else:
                 schema[header] = {
                     'type': ['null', 'string']
                 }
 
-                if isinstance(header_type, IntegerType):
-                    schema[header]['type'].append('integer')
-                elif isinstance(header_type, DecimalType):
-                    schema[header]['type'].append('number')
-                elif isinstance(header_type, BoolType):
-                    schema[header]['type'].append('boolean')
-
     return schema
 
 
-def _csv2bytesio(data: List[Dict])-> io.BytesIO:
+def _csv2bytesio(data: List[Dict]) -> io.BytesIO:
     """
     Converts a list of dictionaries to a csv BytesIO which is a csv file like object
     :param data: List of dictionaries to turn into csv like structure
