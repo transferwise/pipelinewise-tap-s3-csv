@@ -21,29 +21,19 @@ class TestConversion(unittest.TestCase):
 
         self.assertDictEqual({
             'id': {
-                'type': ['null', 'string', 'integer']
+                'type': ['null', 'integer']
             },
             'name': {
                 'type': ['null', 'string']
             },
-            'added_at': {
-                'anyOf': [
-                    {'type': ['null', 'string'], 'format':'date-time'},
-                    {'type': ['null', 'string']}
-                ]
-            },
+            'added_at': {'type': ['null', 'string'], 'format':'date-time'},
             'price': {
-                'type': ['null', 'string', 'number']
+                'type': ['null', 'number']
             },
             'sold': {
-                'type': ['null', 'string', 'boolean']
+                'type': ['null', 'string']
             },
-            'sold_at': {
-                'anyOf': [
-                    {'type': ['null', 'string'], 'format':'date'},
-                    {'type': ['null', 'string']}
-                ]
-            }
+            'sold_at': {'type': ['null', 'string']}
         }, schema)
 
 
