@@ -3,7 +3,7 @@
 from setuptools import setup
 
 with open('README.md') as f:
-      long_description = f.read()
+    long_description = f.read()
 
 setup(name='pipelinewise-tap-s3-csv',
       version='1.0.7',
@@ -18,10 +18,9 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'backoff==1.3.2',
           'boto3==1.9.57',
-          'singer-encodings==0.0.3',
-          'singer-python==5.1.5',
+          'singer-encodings==0.0.*',
+          'pipelinewise-singer-python==1.*',
           'voluptuous==0.10.5',
           'ujson==1.35.*',
           'messytables==0.15.*',

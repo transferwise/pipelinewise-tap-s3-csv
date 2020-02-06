@@ -5,17 +5,17 @@ from __future__ import division
 
 import itertools
 import re
-from typing import Dict, Generator, Optional, Iterator
-
 import backoff
 import boto3
-import singer
 
+from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
+from singer import get_logger
+
 from tap_s3_csv import conversion
 
-LOGGER = singer.get_logger()
+LOGGER = get_logger('tap_s3_csv')
 
 SDC_SOURCE_BUCKET_COLUMN = "_sdc_source_bucket"
 SDC_SOURCE_FILE_COLUMN = "_sdc_source_file"
@@ -187,8 +187,7 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
              "https://docs.python.org/3.5/library/re.html#regular-expression-syntax").format(table_spec['table_name']),
             pattern) from err
 
-    LOGGER.info(
-        'Checking bucket "%s" for keys matching "%s"', bucket, pattern)
+    LOGGER.info('Checking bucket "%s" for keys matching "%s"', bucket, pattern)
 
     matched_files_count = 0
     unmatched_files_count = 0
