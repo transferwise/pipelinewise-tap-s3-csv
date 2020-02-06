@@ -7,13 +7,13 @@ import ujson
 import singer
 
 from typing import Dict
-from singer import metadata
+from singer import metadata, get_logger
 from tap_s3_csv.discover import discover_streams
 from tap_s3_csv import s3
 from tap_s3_csv.sync import sync_stream
 from tap_s3_csv.config import CONFIG_CONTRACT
 
-LOGGER = singer.get_logger()
+LOGGER = get_logger('tap_s3_csv')
 
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket", "aws_access_key_id", "aws_secret_access_key"]
 

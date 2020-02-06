@@ -3,13 +3,10 @@ Module to guess csv columns' types and build Json schema.
 """
 import csv
 import io
-import singer
 
 from typing import Dict, List
 from messytables import CSVTableSet, headers_guess, headers_processor, offset_processor, type_guess
 from messytables.types import DecimalType, IntegerType
-
-LOGGER = singer.get_logger()
 
 
 def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
