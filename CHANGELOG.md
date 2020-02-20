@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+  * Make logging config customizable
+
 ## 1.0.4
   * Skip files when they are empty [#17](https://github.com/singer-io/tap-s3-csv/pull/17)
 
