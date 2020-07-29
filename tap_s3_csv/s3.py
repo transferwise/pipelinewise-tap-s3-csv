@@ -3,6 +3,7 @@ Modules containing all AWS S3 related features
 """
 from __future__ import division
 
+import os
 import itertools
 import re
 import backoff
@@ -49,12 +50,24 @@ def setup_aws_client(config: Dict) -> None:
     Initialize a default AWS session
     :param config: connection config
     """
-    aws_access_key_id = config['aws_access_key_id']
-    aws_secret_access_key = config['aws_secret_access_key']
-
     LOGGER.info("Attempting to create AWS session")
-    boto3.setup_default_session(aws_access_key_id=aws_access_key_id,
-                                aws_secret_access_key=aws_secret_access_key)
+
+    # Get the required parameters from config file and/or environment variables
+    aws_access_key_id = config.get('aws_access_key_id') or os.environ.get('AWS_ACCESS_KEY_ID')
+    aws_secret_access_key = config.get('aws_secret_access_key') or os.environ.get('AWS_SECRET_ACCESS_KEY')
+    aws_session_token = config.get('aws_session_token') or os.environ.get('AWS_SESSION_TOKEN')
+    aws_profile = config.get('aws_profile') or os.environ.get('AWS_PROFILE')
+
+    # AWS credentials based authentication
+    if aws_access_key_id and aws_secret_access_key:
+        boto3.setup_default_session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token
+        )
+    # AWS Profile based authentication
+    else:
+        boto3.setup_default_session(profile_name=aws_profile)
 
 
 def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:

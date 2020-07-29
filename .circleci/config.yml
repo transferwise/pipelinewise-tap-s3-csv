@@ -22,7 +22,13 @@ jobs:
           command: |
             . ./virtualenvs/tap-s3-csv/bin/activate
             export LOGGING_CONF_FILE=./sample_logging.conf
-            nosetests tests
+            nosetests tests/unit
+      - run:
+          name: 'Integration Tests'
+          command: |
+            . ./virtualenvs/tap-s3-csv/bin/activate
+            export LOGGING_CONF_FILE=./sample_logging.conf
+            nosetests tests/integration
 
 workflows:
   version: 2
