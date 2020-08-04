@@ -1,37 +1,36 @@
-# Changelog
+1.2.0 (2020-08-04)
+------------------
+- Add `aws_profile` option to support Profile based authentication to S3
+- Add option to authenticate to S3 using `AWS_PROFILE`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables
 
-## 1.1.0
-  * Make logging config customizable
+1.1.0 (2020-02-20)
+------------------
+- Make logging configurable
 
-## 1.0.4
-  * Skip files when they are empty [#17](https://github.com/singer-io/tap-s3-csv/pull/17)
+1.0.7 (2020-01-07)
+------------------
+- Updated generated json schema to be more in sync with fast sync in PipelineWise
 
-## 1.0.3
-  * Attempt to setup a AWS session that can refresh itself [#16](https://github.com/singer-io/tap-s3-csv/pull/16)
+1.0.6 (2019-12-04)
+------------------
+- New data type guesser by `messytables`
 
-## 1.0.2
-  * Strips hyphens from incoming account_ids.
+1.0.5 (2019-09-10)
+------------------
+- Add `aws_endpoint_url` to support non-aws S3 account
 
-## 1.0.1
-  * Adds retry logic and exponential backoff for AWS requests that fail [#10](https://github.com/singer-io/tap-s3-csv/pull/10)
+1.0.4 (2019-08-16)
+------------------
+- License classifier and project description update
 
-## 1.0.0
-  * Updates how the tap authenticates with AWS - it will now assume a role given via the config [#9](https://github.com/singer-io/tap-s3-csv/pull/9)
+1.0.3 (2019-05-13)
+------------------
+- Raise exception when file(s) cannot sample
 
-## 0.0.7
-  * Adds support for different types of CSV delimiters via singer-encodings [#7](https://github.com/singer-io/tap-s3-csv/pull/7)
+1.0.2 (2019-05-09)
+------------------
+- Better error messages when no files found
 
-## 0.0.6
-  * Add JSON Schema type string to all fields as a final fallback in case we miss a crucial sample [#5](https://github.com/singer-io/tap-s3-csv/pull/5)
-  * Add error handling to fail quickly when no streams are found
-  * Fixes a bug where we could sample the reskey field for a non-rectangular csv [#4](https://github.com/singer-io/tap-s3-csv/pull/4)
-
-## 0.0.5
-  * Use the singer-encodings library to share more code
-  * Renames columns like "_s3_source_bucket" to "_sdc_source_bucket" to better align with standards
-  * Lowers the sample rate to improve speed for larger files
-  * Fixes a logging bug with a cached value
-
-## 0.0.4
-  * Header keys are no longed scrubbed for non-word characters
-  * Raise an error when a date_override is set but does not exist in the header
+1.0.0 (2019-05-08)
+------------------
+- Initial release
