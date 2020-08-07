@@ -73,7 +73,17 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     # need to be fixed. The other consequence of this could be larger
     # memory consumption but that's acceptable as well.
     csv.field_size_limit(sys.maxsize)
-    iterator = get_row_iterator(s3_file_stream, table_spec) #pylint:disable=protected-access
+    # csv.get_row_iterator will check key-properties exist in the csv
+    # so we need to give them the list minus the meta field such as SDC_SOURCE_FILE_COLUMN or others
+    reduced_table_spec = {}
+    reduced_table_spec["key_properties"] = table_spec.get("key_properties", []).copy()
+    if s3.SDC_SOURCE_BUCKET_COLUMN in reduced_table_spec["key_properties"]:
+        reduced_table_spec["key_properties"].remove(s3.SDC_SOURCE_BUCKET_COLUMN)
+    if s3.SDC_SOURCE_FILE_COLUMN in reduced_table_spec["key_properties"]: 
+        reduced_table_spec["key_properties"].remove(s3.SDC_SOURCE_FILE_COLUMN)
+    if s3.SDC_SOURCE_LINENO_COLUMN in reduced_table_spec["key_properties"]: 
+        reduced_table_spec["key_properties"].remove(s3.SDC_SOURCE_LINENO_COLUMN)
+    iterator = get_row_iterator(s3_file_stream, reduced_table_spec) #pylint:disable=protected-access
 
     records_synced = 0
 
