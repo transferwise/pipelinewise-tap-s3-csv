@@ -9,6 +9,7 @@ import more_itertools
 import re
 import backoff
 import boto3
+import copy
 import singer
 import io
 import zipfile
@@ -158,17 +159,21 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
     :param sample_rate:
     :return: generator containing the samples as dictionaries
     """
-    file_handle = get_file_handle(config, s3_path)
-    # _raw_stream seems like the wrong way to access this..    
-    # if csv is zipped, unzip it
-    stream = None
-    if s3_path.endswith('zip'):
-        LOGGER.info('decompress stream')
-        stream = stream_zip_decompress(file_handle._raw_stream)
-    else:
-        stream = file_handle._raw_stream
-    
-    iterator = csv.get_row_iterator(file_handle._raw_stream, table_spec) #pylint:disable=protected-access
+    file_stream = get_file_stream(config, s3_path)
+
+    # csv.get_row_iterator will check key-properties exist in the csv
+    # so we need to give them the list minus the meta field such as SDC_SOURCE_FILE_COLUMN or others
+    reduced_table_spec = {}
+    reduced_table_spec["key_properties"] = table_spec.get("key_properties", []).copy()
+    if SDC_SOURCE_BUCKET_COLUMN in reduced_table_spec["key_properties"]:
+        reduced_table_spec["key_properties"].remove(SDC_SOURCE_BUCKET_COLUMN)
+    if SDC_SOURCE_FILE_COLUMN in reduced_table_spec["key_properties"]: 
+        reduced_table_spec["key_properties"].remove(SDC_SOURCE_FILE_COLUMN)
+    if SDC_SOURCE_LINENO_COLUMN in reduced_table_spec["key_properties"]: 
+        reduced_table_spec["key_properties"].remove(SDC_SOURCE_LINENO_COLUMN)
+
+
+    iterator = get_row_iterator(file_stream, reduced_table_spec) #pylint:disable=protected-access
 
     current_row = 0
 
