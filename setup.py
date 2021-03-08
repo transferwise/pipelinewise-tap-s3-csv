@@ -27,7 +27,7 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       extras_require={
           'dev': [
-              'ipdb==0.13.4',
+              'ipdb==0.13.5',
           ],
           'test': [
               'nose==1.3.*',
