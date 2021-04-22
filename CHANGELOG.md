@@ -1,3 +1,7 @@
+1.2.1 (2021-04-22)
+------------------
+- Bumping dependencies
+
 1.2.0 (2020-08-04)
 ------------------
 - Add `aws_profile` option to support Profile based authentication to S3
