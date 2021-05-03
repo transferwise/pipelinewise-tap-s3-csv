@@ -5,6 +5,7 @@ Tap S3 csv main script
 import sys
 import ujson
 import singer
+import json
 
 from typing import Dict
 from singer import metadata, get_logger
@@ -13,7 +14,7 @@ from tap_s3_csv import s3
 from tap_s3_csv.sync import sync_stream
 from tap_s3_csv.config import CONFIG_CONTRACT
 
-LOGGER = get_logger('tap_s3_csv')
+LOGGER = get_logger()
 
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket"]
 
@@ -81,8 +82,11 @@ def main() -> None:
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     config = args.config
 
-    # Reassign the config tables to the validated object
-    config['tables'] = CONFIG_CONTRACT(config.get('tables', {}))
+    # Reassign the config tables to the validated object, accept encoded json
+    tables = config.get('tables', {})
+    if isinstance(tables, str):
+        tables = json.loads(tables)
+    config['tables'] = CONFIG_CONTRACT(tables)
 
     try:
         for _ in s3.list_files_in_bucket(config['bucket']):
