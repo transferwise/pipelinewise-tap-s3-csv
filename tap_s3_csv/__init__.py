@@ -14,7 +14,7 @@ from tap_s3_csv import s3
 from tap_s3_csv.sync import sync_stream
 from tap_s3_csv.config import CONFIG_CONTRACT
 
-LOGGER = get_logger()
+LOGGER = get_logger(name='tap_s3_csv')
 
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket"]
 

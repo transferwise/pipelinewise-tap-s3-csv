@@ -11,7 +11,7 @@ from singer_encodings.csv import get_row_iterator # pylint:disable=no-name-in-mo
 
 from tap_s3_csv import s3
 
-LOGGER = get_logger('tap_s3_csv')
+LOGGER = get_logger(name='tap_s3_csv')
 
 
 def sync_stream(config: Dict, state: Dict, table_spec: Dict, stream: Dict) -> int:

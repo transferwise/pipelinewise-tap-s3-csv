@@ -16,7 +16,7 @@ from singer import get_logger
 
 from tap_s3_csv import conversion
 
-LOGGER = get_logger('tap_s3_csv')
+LOGGER = get_logger(name='tap_s3_csv')
 
 SDC_SOURCE_BUCKET_COLUMN = "_sdc_source_bucket"
 SDC_SOURCE_FILE_COLUMN = "_sdc_source_file"
