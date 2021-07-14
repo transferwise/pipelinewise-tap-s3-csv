@@ -5,11 +5,11 @@ from __future__ import division
 
 import os
 import itertools
+import more_itertools
 import re
 import backoff
 import boto3
 
-from more_itertools import tail
 from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
@@ -172,7 +172,7 @@ def sample_files(config: Dict, table_spec: Dict, s3_files: Generator,
     :returns: Generator containing all samples as dicts
     """
     LOGGER.info("Sampling files (max files: %s)", max_files)
-    for s3_file in tail(max_files, s3_files):
+    for s3_file in more_itertools.tail(max_files, s3_files):
         LOGGER.info('Sampling %s (max records: %s, sample rate: %s)',
                     s3_file['key'],
                     max_records,
