@@ -13,7 +13,7 @@ import boto3
 from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
-from singer import get_logger
+from singer import get_logger, utils
 
 from tap_s3_csv import conversion
 
@@ -80,7 +80,8 @@ def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
     """
     LOGGER.info('Sampling records to determine table schema.')
 
-    s3_files_gen = get_input_files_for_table(config, table_spec)
+    modified_since = utils.strptime_with_tz(config['start_date'])
+    s3_files_gen = get_input_files_for_table(config, table_spec, modified_since)
 
     samples = list(sample_files(config, table_spec, s3_files_gen))
 
@@ -202,11 +203,13 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
             pattern) from err
 
     LOGGER.info('Checking bucket "%s" for keys matching "%s"', bucket, pattern)
+    LOGGER.info('Skipping files which have a LastModified value older than %s', modified_since)
 
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in sorted(list_files_in_bucket(bucket, prefix, aws_endpoint_url=config.get('aws_endpoint_url')), key=lambda item: item['LastModified']):
+    for s3_object in sorted(list_files_in_bucket(bucket, prefix, aws_endpoint_url=config.get('aws_endpoint_url')),
+                            key=lambda item: item['LastModified'], reverse=False):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
 
