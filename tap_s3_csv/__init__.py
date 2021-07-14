@@ -18,7 +18,7 @@ LOGGER = get_logger('tap_s3_csv')
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket"]
 
 
-def do_discover(config: Dict) -> None:
+def do_discover(config: Dict, state: Dict) -> None:
     """
     Discovers the source by connecting to the it and collecting information about the given tables/streams,
     it dumps the information to stdout
@@ -26,7 +26,7 @@ def do_discover(config: Dict) -> None:
     :return: nothing
     """
     LOGGER.info("Starting discover")
-    streams = discover_streams(config)
+    streams = discover_streams(config, state)
     if not streams:
         raise Exception("No streams found")
     catalog = {"streams": streams}
@@ -92,7 +92,7 @@ def main() -> None:
         s3.setup_aws_client(config)
 
     if args.discover:
-        do_discover(args.config)
+        do_discover(args.config, args.state)
     elif args.properties:
         do_sync(config, args.properties, args.state)
 

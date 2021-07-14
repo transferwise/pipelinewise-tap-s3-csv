@@ -7,16 +7,17 @@ from singer import metadata
 from tap_s3_csv import s3
 
 
-def discover_streams(config: Dict)-> List[Dict]:
+def discover_streams(config: Dict, state: Dict) -> List[Dict]:
     """
     Run discovery mode for every stream in the tap configuration
+    :param state: current state
     :param config: connection and streams configuration
     :return: list of information  about every stream
     """
     streams = []
 
     for table_spec in config['tables']:
-        schema = discover_schema(config, table_spec)
+        schema = discover_schema(config, state, table_spec)
         streams.append({'stream': table_spec['table_name'],
                         'tap_stream_id': table_spec['table_name'],
                         'schema': schema,
@@ -25,14 +26,15 @@ def discover_streams(config: Dict)-> List[Dict]:
     return streams
 
 
-def discover_schema(config: Dict, table_spec: Dict) -> Dict:
+def discover_schema(config: Dict, state: Dict, table_spec: Dict) -> Dict:
     """
     Detects the json schema of the given table/stream
+    :param state: current state
     :param config: connection and streams configuration
     :param table_spec: table specs
     :return: detected schema
     """
-    sampled_schema = s3.get_sampled_schema_for_table(config, table_spec)
+    sampled_schema = s3.get_sampled_schema_for_table(config, state, table_spec)
 
     # Raise an exception if schema cannot sampled. Empty schema will fail and target side anyways
     if not sampled_schema:

@@ -13,7 +13,7 @@ import boto3
 from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
-from singer import get_logger
+from singer import get_logger, utils, get_bookmark
 
 from tap_s3_csv import conversion
 
@@ -71,16 +71,20 @@ def setup_aws_client(config: Dict) -> None:
         boto3.setup_default_session(profile_name=aws_profile)
 
 
-def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
+def get_sampled_schema_for_table(config: Dict, state: Dict, table_spec: Dict) -> Dict:
     """
     Detects json schema using a sample of table/stream data
+    :param state: current state
     :param config: Tap config
     :param table_spec: tables specs
     :return: detected schema
     """
     LOGGER.info('Sampling records to determine table schema.')
 
-    s3_files_gen = get_input_files_for_table(config, table_spec)
+    modified_since = utils.strptime_with_tz(get_bookmark(state, table_spec['table_name'], 'modified_since') or
+                                            config['start_date'])
+
+    s3_files_gen = get_input_files_for_table(config, table_spec, modified_since)
 
     samples = list(sample_files(config, table_spec, s3_files_gen))
 
