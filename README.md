@@ -138,5 +138,3 @@ Integration tests require a valid S3 bucket and credentials should be passed as 
 ```
 
 ---
-
-Based on Stitch documentation
