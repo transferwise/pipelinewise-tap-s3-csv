@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+env:
+  LOGGING_CONF_FILE: ./sample_logging.conf
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup virtual env
+        run: |
+          python3 -m venv ./virtualenvs/tap-s3-csv
+          . ./virtualenvs/tap-s3-csv/bin/activate
+          pip3 install --upgrade pip wheel
+          pip3 install .[test]
+
+      - name: Pylinting
+        run: |
+          . ./virtualenvs/tap-s3-csv/bin/activate
+          pylint --rcfile .pylintrc tap_s3_csv/
+
+      - name: Unit Tests
+        run: |
+          . ./virtualenvs/tap-s3-csv/bin/activate
+          nosetests tests/unit
+
+      - name: Integration Tests
+        env:
+          TAP_S3_CSV_ACCESS_KEY_ID: ${{ secrets.TAP_S3_CSV_ACCESS_KEY_ID }}
+          TAP_S3_CSV_SECRET_ACCESS_KEY: ${{ secrets.TAP_S3_CSV_SECRET_ACCESS_KEY }}
+          TAP_S3_CSV_BUCKET: ${{ secrets.TAP_S3_CSV_BUCKET }}
+        run: |
+          . ./virtualenvs/tap-s3-csv/bin/activate
+          nosetests tests/integration
