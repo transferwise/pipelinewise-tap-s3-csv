@@ -24,7 +24,7 @@ setup(name='pipelinewise-tap-s3-csv',
           'voluptuous==0.12.1',
           'ujson>=1.35,<4.1',
           'messytables==0.15.*',
-          'more_itertools==8.8.*',
+          'more_itertools>=8.8,<8.11',
       ],
       extras_require={
           'dev': [
