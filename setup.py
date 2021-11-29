@@ -32,7 +32,7 @@ setup(name='pipelinewise-tap-s3-csv',
           ],
           'test': [
               'nose==1.3.*',
-              'pylint>=2.4,<2.8',
+              'pylint>=2.4,<2.13',
           ]
       },
       entry_points='''
