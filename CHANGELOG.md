@@ -1,3 +1,9 @@
+1.2.2 (2021-07-19)
+------------------
+**Fix**
+  - Make use of `start_date` when doing discovery
+  - Discovery to run on more recent files to be able to detect new columns.
+
 1.2.1 (2021-04-22)
 ------------------
 - Bumping dependencies
