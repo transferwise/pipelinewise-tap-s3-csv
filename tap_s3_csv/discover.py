@@ -36,7 +36,8 @@ def discover_schema(config: Dict, table_spec: Dict) -> Dict:
 
     # Raise an exception if schema cannot sampled. Empty schema will fail and target side anyways
     if not sampled_schema:
-        raise ValueError(f"{table_spec.get('search_prefix', '')} - {table_spec.get('search_pattern', '')} file(s) has no data and cannot analyse the content to generate the required schema.")
+        raise ValueError(f"{table_spec.get('search_prefix', '')} - {table_spec.get('search_pattern', '')} 
+            file(s) has no data and cannot analyse the content to generate the required schema.")
 
     return sampled_schema
 

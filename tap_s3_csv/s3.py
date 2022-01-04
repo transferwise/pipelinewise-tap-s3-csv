@@ -240,9 +240,11 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
 
     if matched_files_count == 0:
         if prefix:
-            raise Exception(f'No files found in bucket "{bucket}" that matches prefix "{prefix}" and pattern "{pattern}"')
+            raise Exception(
+                f'No files found in bucket "{bucket}" that matches prefix "{prefix}" and pattern "{pattern}"'
+            )
 
-        raise Exception(f'No files found in bucket "{bucket}" that matches pattern "{patte}"')
+        raise Exception(f'No files found in bucket "{bucket}" that matches pattern "{pattern}"')
 
 
 @retry_pattern()
