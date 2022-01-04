@@ -197,9 +197,8 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
         matcher = re.compile(pattern)
     except re.error as err:
         raise ValueError(
-            ("search_pattern for table `{}` is not a valid regular "
-             "expression. See "
-             "https://docs.python.org/3.5/library/re.html#regular-expression-syntax").format(table_spec['table_name']),
+            (f"search_pattern for table `{table_spec['table_name']}` is not a valid regular "
+             "expression. See https://docs.python.org/3.5/library/re.html#regular-expression-syntax"),
             pattern) from err
 
     LOGGER.info('Checking bucket "%s" for keys matching "%s"', bucket, pattern)
@@ -241,10 +240,11 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
 
     if matched_files_count == 0:
         if prefix:
-            raise Exception('No files found in bucket "{}" that matches prefix "{}" and pattern "{}"'
-                            .format(bucket, prefix, pattern))
+            raise Exception(
+                f'No files found in bucket "{bucket}" that matches prefix "{prefix}" and pattern "{pattern}"'
+            )
 
-        raise Exception('No files found in bucket "{}" that matches pattern "{}"'.format(bucket, pattern))
+        raise Exception(f'No files found in bucket "{bucket}" that matches pattern "{pattern}"')
 
 
 @retry_pattern()
