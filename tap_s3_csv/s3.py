@@ -197,7 +197,7 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
         matcher = re.compile(pattern)
     except re.error as err:
         raise ValueError(
-            (f"search_pattern for table `{table_spec['table_name'}]` is not a valid regular "
+            (f"search_pattern for table `{table_spec['table_name']}` is not a valid regular "
              "expression. See https://docs.python.org/3.5/library/re.html#regular-expression-syntax"),
             pattern) from err
 
