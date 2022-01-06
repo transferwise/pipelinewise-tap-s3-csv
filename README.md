@@ -103,15 +103,12 @@ A sample configuration is available inside [config.sample.json](config.sample.js
 
 1. Install python test dependencies in a virtual env and run nose unit and integration tests
 ```
-  python3 -m venv venv
-  . venv/bin/activate
-  pip install --upgrade pip
-  pip install .[test]
+  make venv
 ```
 
 2. To run unit tests:
 ```
-  nosetests --where=tests/unit
+  make unit_tests
 ```
 
 3. To run integration tests:
@@ -123,20 +120,14 @@ Integration tests require a valid S3 bucket and credentials should be passed as 
   export TAP_S3_CSV_SECRET_ACCESS_KEY=<s3-secret-access-key>
   export TAP_S3_CSV_BUCKET=<s3-bucket>
 
-  nosetests --where=tests/integration
+  make integration_tests
 ```
 
 ### To run pylint:
 
 1. Install python dependencies and run python linter
 ```
-  python3 -m venv venv
-  . venv/bin/activate
-  pip install --upgrade pip
-  pip install .[test]
-  pylint --rcfile .pylintrc tap_s3_csv/
+  make venv pylint
 ```
 
 ---
-
-Based on Stitch documentation
