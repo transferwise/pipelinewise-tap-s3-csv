@@ -18,7 +18,7 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'boto3==1.17.53',
+          'boto3==1.20.29',
           'singer-encodings==0.0.*',
           'pipelinewise-singer-python==1.*',
           'voluptuous==0.12.1',
@@ -28,11 +28,11 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       extras_require={
           'dev': [
-              'ipdb==0.13.7',
+              'ipdb==0.13.9',
           ],
           'test': [
               'nose==1.3.*',
-              'pylint>=2.4,<2.8',
+              'pylint==2.12.*',
           ]
       },
       entry_points='''
