@@ -12,35 +12,31 @@ env:
 jobs:
   lint_and_test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.6, 3.7, 3.8 ]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          fetch-depth: 0
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup virtual env
-        run: |
-          python3 -m venv ./virtualenvs/tap-s3-csv
-          . ./virtualenvs/tap-s3-csv/bin/activate
-          pip3 install --upgrade pip wheel
-          pip3 install .[test]
+        run: make venv
 
       - name: Pylinting
-        run: |
-          . ./virtualenvs/tap-s3-csv/bin/activate
-          pylint --rcfile .pylintrc tap_s3_csv/
+        run: make pylint
 
       - name: Unit Tests
-        run: |
-          . ./virtualenvs/tap-s3-csv/bin/activate
-          nosetests tests/unit
+        run: make unit_tests
 
       - name: Integration Tests
         env:
           TAP_S3_CSV_ACCESS_KEY_ID: ${{ secrets.TAP_S3_CSV_ACCESS_KEY_ID }}
           TAP_S3_CSV_SECRET_ACCESS_KEY: ${{ secrets.TAP_S3_CSV_SECRET_ACCESS_KEY }}
           TAP_S3_CSV_BUCKET: ${{ secrets.TAP_S3_CSV_BUCKET }}
-        run: |
-          . ./virtualenvs/tap-s3-csv/bin/activate
-          nosetests tests/integration
+        run: make integration_tests
