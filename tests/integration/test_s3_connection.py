@@ -11,7 +11,7 @@ except ImportError:
     import utils as test_utils
 
 
-class TestS3(unittest.TestCase):
+class TestS3Connection(unittest.TestCase):
     """
     Integration Tests
     """
