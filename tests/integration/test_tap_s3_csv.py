@@ -1,0 +1,178 @@
+import contextlib
+import datetime
+import io
+import os.path
+import random
+import unittest
+import boto3
+import ujson
+
+from copy import deepcopy
+
+from tap_s3_csv import do_discover, do_sync
+
+try:
+    import tests.utils as test_utils
+except ImportError:
+    import utils as test_utils
+
+
+class TestTapS3Csv(unittest.TestCase):
+    """
+    Integration Tests
+    """
+    obj_name = None
+    config = None
+    maxDiff = None
+    expected_catalog = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.config = test_utils.get_test_config()
+        cls.config['tables'] = [{
+            "search_prefix": "tap_s3_csv_test_data",
+            "search_pattern": "users.csv",
+            "table_name": "users",
+            "key_properties": ["id"],
+            "delimiter": ","
+        }]
+
+        file_name = os.path.join(os.path.dirname(__file__), 'mock_data.csv')
+        cls.obj_name = 'tap_s3_csv_test_data/users.csv'
+
+        boto3.setup_default_session(
+            aws_access_key_id=cls.config['aws_access_key_id'],
+            aws_secret_access_key=cls.config['aws_secret_access_key'],
+        )
+
+        # upload test file to bucket
+        s3_client = boto3.client('s3')
+        response = s3_client.upload_file(file_name, cls.config['bucket'], cls.obj_name)
+
+        cls.expected_catalog = catalog = {
+            "streams": [
+                {
+                    "stream": "users",
+                    "tap_stream_id": "users",
+                    "schema": {
+                        "properties": {
+                            "_sdc_extra": {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array",
+                            },
+                            "_sdc_source_bucket": {
+                                "type": "string"
+                            },
+                            "_sdc_source_file": {
+                                "type": "string"
+                            },
+                            "_sdc_source_lineno": {
+                                "type": "integer"
+                            },
+                            "birth_date": {
+                                "type": ['null', "string"]
+                            },
+                            "email": {
+                                "type": ['null', "string"]
+                            },
+                            "first_name": {
+                                "type": ['null', "string"]
+                            },
+                            "id": {
+                                "type": ['null', "integer"]
+                            },
+                            "ip_address": {
+                                "type": ['null', "string"]
+                            },
+                            "is_pensioneer": {
+                                "type": ["null", "string"]
+                            },
+                            "gender": {
+                                "type": ['null', "string"]
+                            },
+                            "group": {
+                                "type": ['null', "string"]
+                            },
+                            "last_name": {
+                                "type": ['null', "string"]
+                            },
+                        },
+                        "type": "object",
+                    },
+                    "metadata": [
+                        {"breadcrumb": [], "metadata": {'table-key-properties': ['id']}},
+                        {"breadcrumb": ["properties", "_sdc_extra"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "_sdc_source_bucket"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "_sdc_source_file"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "_sdc_source_lineno"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "birth_date"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "email"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "first_name"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "gender"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "group"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "id"], "metadata": {"inclusion": "automatic"}},
+                        {"breadcrumb": ["properties", "ip_address"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "is_pensioneer"], "metadata": {"inclusion": "available"}},
+                        {"breadcrumb": ["properties", "last_name"], "metadata": {"inclusion": "available"}},
+                    ]
+                }
+            ]
+        }
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        ...
+
+    def test_discovery(self):
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f):
+            do_discover(self.config)
+
+        catalog = ujson.loads(f.getvalue())
+
+        self.assertIsInstance(catalog, dict)
+        self.assertEqual(1, len(catalog['streams']))
+        self.assertEqual(self.expected_catalog['streams'][0]['stream'], catalog['streams'][0]['stream'])
+        self.assertEqual(self.expected_catalog['streams'][0]['tap_stream_id'], catalog['streams'][0]['tap_stream_id'])
+
+        self.assertDictEqual(self.expected_catalog['streams'][0]['schema'], catalog['streams'][0]['schema'])
+        self.assertListEqual(self.expected_catalog['streams'][0]['metadata'],
+                             # sort metadata to have have a fix order of breadcrumbs to make assertion pass
+                             sorted(catalog['streams'][0]['metadata'], key=lambda d: d['breadcrumb']))
+
+    def test_sync(self):
+        catalog = deepcopy(self.expected_catalog)
+        # set stream to selected
+        catalog['streams'][0]['metadata'][0]['metadata']['selected'] = True
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f):
+            do_sync(self.config, catalog, {})
+
+        lines = [ujson.loads(line) for line in f.getvalue().strip().splitlines()]
+
+        self.assertDictEqual({'type': 'STATE', 'value': {}}, lines[0])
+        self.assertEqual('SCHEMA', lines[1]['type'])
+        self.assertEqual('users', lines[1]['stream'])
+        self.assertEqual(catalog['streams'][0]['schema'].keys(), lines[1]['schema'].keys())
+
+        self.assertEqual('RECORD', lines[2]['type'])
+        self.assertEqual('users', lines[2]['stream'])
+        self.assertDictEqual({
+                '_sdc_source_bucket': self.config['bucket'],
+                '_sdc_source_file': self.obj_name,
+                '_sdc_source_lineno': 2,
+                'birth_date': '1/22/1971',
+                'email': 'gmackney0@china.com.cn',
+                'first_name': 'Ginger',
+                'id': 1,
+                'ip_address': '180.48.88.217',
+                'is_pensioneer': 'true',
+                'gender': 'Male',
+                'group': '90',
+                'last_name': 'Mackney',
+        }, lines[2]['record'])
+
+        self.assertIsNotNone(lines[2]['time_extracted'])
