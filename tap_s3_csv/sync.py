@@ -79,6 +79,8 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     records_synced = 0
 
     for row in iterator:
+        time_extracted = utils.now()
+
         custom_columns = {
             s3.SDC_SOURCE_BUCKET_COLUMN: bucket,
             s3.SDC_SOURCE_FILE_COLUMN: s3_path,
@@ -91,7 +93,7 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
         with Transformer() as transformer:
             to_write = transformer.transform(rec, stream['schema'], metadata.to_map(stream['metadata']))
 
-        write_record(table_name, to_write)
+        write_record(table_name, to_write, time_extracted=time_extracted)
         records_synced += 1
 
     return records_synced
