@@ -6,6 +6,7 @@ import random
 import unittest
 import boto3
 import ujson
+import random
 
 from copy import deepcopy
 
@@ -29,8 +30,10 @@ class TestTapS3Csv(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = test_utils.get_test_config()
+        random_prefix = f'tap_s3_csv_test_data_{random.randint(1, 10000)}'
+
         cls.config['tables'] = [{
-            "search_prefix": "tap_s3_csv_test_data",
+            "search_prefix": random_prefix,
             "search_pattern": "users.csv",
             "table_name": "users",
             "key_properties": ["id"],
@@ -38,7 +41,7 @@ class TestTapS3Csv(unittest.TestCase):
         }]
 
         file_name = os.path.join(os.path.dirname(__file__), 'mock_data.csv')
-        cls.obj_name = 'tap_s3_csv_test_data/users.csv'
+        cls.obj_name = f'{random_prefix}/users.csv'
 
         boto3.setup_default_session(
             aws_access_key_id=cls.config['aws_access_key_id'],
@@ -47,7 +50,7 @@ class TestTapS3Csv(unittest.TestCase):
 
         # upload test file to bucket
         s3_client = boto3.client('s3')
-        response = s3_client.upload_file(file_name, cls.config['bucket'], cls.obj_name)
+        s3_client.upload_file(file_name, cls.config['bucket'], cls.obj_name)
 
         cls.expected_catalog = catalog = {
             "streams": [
@@ -123,7 +126,8 @@ class TestTapS3Csv(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        ...
+        s3_client = boto3.client('s3')
+        s3_client.delete_object(Bucket=cls.config['bucket'], Key=cls.obj_name)
 
     def test_discovery(self):
         f = io.StringIO()
@@ -176,3 +180,5 @@ class TestTapS3Csv(unittest.TestCase):
         }, lines[2]['record'])
 
         self.assertIsNotNone(lines[2]['time_extracted'])
+
+        self.assertEqual(100, sum(1 for line in lines if line['type']=='RECORD'))
