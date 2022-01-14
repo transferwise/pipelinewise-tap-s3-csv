@@ -1,3 +1,12 @@
+1.2.3 (2022-01-14)
+------------------
+**Fix**
+  - Set `time_extracted` when creating singer records.
+
+**Changes**
+  - Migrate CI to github actions
+  - bump dependencies
+
 1.2.2 (2021-07-19)
 ------------------
 **Fix**
