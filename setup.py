@@ -6,7 +6,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='pipelinewise-tap-s3-csv',
-      version='1.2.3',
+      version='2.0.0',
       description='Singer.io tap for extracting CSV files from S3 - PipelineWise compatible',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -18,11 +18,11 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'boto3==1.20.29',
+          'boto3==1.20.54',
           'singer-encodings==0.0.*',
           'pipelinewise-singer-python==1.*',
           'voluptuous==0.12.1',
-          'ujson==4.3.0',
+          'ujson==5.1.0',
           'messytables==0.15.*',
           'more_itertools==8.12.*',
       ],
