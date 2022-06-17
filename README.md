@@ -84,6 +84,7 @@ The `table` field consists of one or more objects, that describe how to find fil
         "table_name": "my_table",
         "key_properties": ["id"],
         "date_overrides": ["created_at"],
+        "string_overrides": ["my_token"],        
         "delimiter": ","
     },
     ...
@@ -94,7 +95,8 @@ The `table` field consists of one or more objects, that describe how to find fil
 - **search_pattern**: This is an escaped regular expression that the tap will use to find files in the bucket + prefix. It's a bit strange, since this is an escaped string inside of an escaped string, any backslashes in the RegEx will need to be double-escaped.
 - **table_name**: This value is a string of your choosing, and will be used to name the stream that records are emitted under for files matching content.
 - **key_properties**: These are the "primary keys" of the CSV files, to be used by the target for deduplication and primary key definitions downstream in the destination.
-- **date_overrides**: Specifies field names in the files that are supposed to be parsed as a datetime. The tap doesn't attempt to automatically determine if a field is a datetime, so this will make it explicit in the discovered schema.
+- **date_overrides**: Optional: Specifies field names in the files that are supposed to be parsed as a datetime. The tap doesn't attempt to automatically determine if a field is a datetime, so this will make it explicit in the discovered schema.
+- **string_overrides**: Optional: Specifies field names in the files that are supposed to be parsed as a string. The tap attempts to automatically determine the datatype of a field e.g integer, this override any discovery and will set the field to be a string in the discovered schema.
 - **delimiter**: This allows you to specify a custom delimiter, such as `\t` or `|`, if that applies to your files.
 
 A sample configuration is available inside [config.sample.json](config.sample.json)
