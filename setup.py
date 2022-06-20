@@ -20,7 +20,7 @@ setup(name='pipelinewise-tap-s3-csv',
       install_requires=[
           'boto3==1.23.10',
           'singer-encodings==0.1.*',
-          'pipelinewise-singer-python==1.*',
+          'pipelinewise-singer-python==2.0.*',
           'voluptuous==0.13.1',
           'ujson==5.2.0',
           'messytables==0.15.*',
