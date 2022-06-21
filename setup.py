@@ -20,7 +20,6 @@ setup(name='pipelinewise-tap-s3-csv',
       install_requires=[
           'boto3==1.23.10',
           'pipelinewise-singer-python==2.0.*',
-          'singer-encodings==0.1.*',
           # Public repository
           'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings@feature/remove_singer_dependency',
           'voluptuous==0.13.1',
@@ -36,10 +35,7 @@ setup(name='pipelinewise-tap-s3-csv',
               'pytest==7.1.*',
               'pylint==2.12.*',
               'pytest-cov==3.0.*'
-          ],
-          'postinstall': [
-              'singer-encodings==0.1.*',
-          ],
+          ]
       },
       entry_points='''
           [console_scripts]
