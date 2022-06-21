@@ -56,7 +56,7 @@ def do_sync(config: Dict, catalog: Dict, state: Dict) -> None:
     for stream in catalog['streams']:
         stream_name = stream['tap_stream_id']
         mdata = metadata.to_map(stream['metadata'])
-        table_spec = next(s for s in config['tables'] if s['table_name'] == stream_name)
+        table_spec = next(s for s in config['tables'] if s['table_name'] + config.get("table_suffix","") == stream_name)
         if not stream_is_selected(mdata):
             LOGGER.info("%s: Skipping - not selected", stream_name)
             continue

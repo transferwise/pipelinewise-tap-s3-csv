@@ -38,7 +38,7 @@ or
 
 ### Configuration
 
-Here is an example of basic config, that's using the defualt Profile based authentication:
+Here is an example of basic config, that's using the default Profile based authentication:
 
     ```json
     {
@@ -53,6 +53,23 @@ Here is an example of basic config, that's using the defualt Profile based authe
         }]
     }
     ```
+There is an additional optional config parameter `table_suffix` which can be configured as below:
+
+    ```json
+    {
+        "start_date": "2000-01-01T00:00:00Z",
+        "bucket": "tradesignals-crawler",
+        "tables": [{
+            "search_prefix": "feeds",
+            "search_pattern": ".csv",
+            "table_name": "my_table",
+            "key_properties": ["id"],
+            "delimiter": ","
+        }],
+        "table_suffix": "_xyz"
+    }
+    ```
+
 
 ### Profile based authentication
 
@@ -72,9 +89,10 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
-- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
+- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files.
+- **table_suffix**: A suffix may be appended to the end of every stream_id / table_name. This maybe useful if you want a runtime configuration like process date appended to the end of each table_name to make it unique.
 
-The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:
+The `tables` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:
 
 ```
 [
