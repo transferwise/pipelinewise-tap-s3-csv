@@ -84,7 +84,8 @@ The `table` field consists of one or more objects, that describe how to find fil
         "table_name": "my_table",
         "key_properties": ["id"],
         "date_overrides": ["created_at"],
-        "delimiter": ","
+        "delimiter": ",",
+        "encoding": "iso-8859-1"
     },
     ...
 ]
