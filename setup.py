@@ -33,7 +33,7 @@ setup(name='pipelinewise-tap-s3-csv',
           'test': [
               'pytest==7.1.*',
               'pylint==2.12.*',
-              'pytest-cov==3.0.*'
+              'pytest-cov>=3.0,<4.1'
           ]
       },
       entry_points='''
