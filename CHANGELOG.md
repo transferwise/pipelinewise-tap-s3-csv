@@ -1,3 +1,22 @@
+2.0.6 (2022-10-05)
+------------------
+
+**Changes**
+  - Bump boto3 from 1.23.10 to 1.24.26
+  - Bump ujson from 5.2.0 to 5.4.0 because of vunerabilities
+
+2.0.5 (2022-10-04)
+------------------
+
+The tap-s3-csv enhancements deal with scenarios where the csv files are not loading correctly due to various quality issues or assumption about the data being read e.g. data-types.
+
+**Changes**
+  - Allows strings to be overridden to have a string data-type regardless of what has been discovered
+  - Supports the reading of UTF-8-BOM (Byte Order) - Microsoft saved csv files
+  - Support a suffix being added to streams / tables to make them unique e.g. a date or provider_id
+  - Provides option to warn rather error if a file isn't discovered for the search criteria
+  - Support the ability to remove a character from the csv file being read e.g. strip out all double-quotes.
+
 2.0.0 (2022-02-10)
 ------------------
 
