@@ -32,8 +32,12 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
 
         date_overrides = set(table_spec.get('date_overrides', []))
 
+        string_overrides = set(table_spec.get('string_overrides', []))
+
         if header in date_overrides:
             schema[header] = {'type': ['null', 'string'], 'format': 'date-time'}
+        elif header in string_overrides:
+            schema[header] = {'type': ['null', 'string']}
         else:
             if isinstance(header_type, IntegerType):
                 schema[header] = {

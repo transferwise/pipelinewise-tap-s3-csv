@@ -38,18 +38,22 @@ or
 
 ### Configuration
 
-Here is an example of basic config, that's using the defualt Profile based authentication:
+Here is an example of basic config, that's using the default Profile based authentication:
 
     ```json
     {
         "start_date": "2000-01-01T00:00:00Z",
         "bucket": "tradesignals-crawler",
+        "warning_if_no_files": false,
+        "table_suffix": "_extract1",
         "tables": [{
             "search_prefix": "feeds",
             "search_pattern": ".csv",
             "table_name": "my_table",
             "key_properties": ["id"],
-            "delimiter": ","
+            "delimiter": ",",
+            "string_overrides": ["field_1","field_2"],
+            "remove_character": "\""
         }]
     }
     ```
@@ -72,6 +76,8 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
+- **warning_if_no_files**: Will attempt to log a warning rather than error if there are no files found for the search criteria if the setting is set to `true`.
+- **table_suffix**: If set will append a suffix on each of the tables to provide some uniqueness e.g. a date or supplier identifier.
 - **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
 
 The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:
@@ -84,7 +90,9 @@ The `table` field consists of one or more objects, that describe how to find fil
         "table_name": "my_table",
         "key_properties": ["id"],
         "date_overrides": ["created_at"],
-        "delimiter": ","
+        "delimiter": ",",
+        "string_overrides": ["field_1","field_2"],
+        "remove_character": "\""
     },
     ...
 ]
@@ -96,6 +104,8 @@ The `table` field consists of one or more objects, that describe how to find fil
 - **key_properties**: These are the "primary keys" of the CSV files, to be used by the target for deduplication and primary key definitions downstream in the destination.
 - **date_overrides**: Specifies field names in the files that are supposed to be parsed as a datetime. The tap doesn't attempt to automatically determine if a field is a datetime, so this will make it explicit in the discovered schema.
 - **delimiter**: This allows you to specify a custom delimiter, such as `\t` or `|`, if that applies to your files.
+- **string_overrides**: Specifies field names in the files that should be parsed as a string regardless of what was discovered.
+- **remove_character**: Specifies a character which can be removed from each line in the the file e.g. `"\""` will remove all double-quotes.
 
 A sample configuration is available inside [config.sample.json](config.sample.json)
 

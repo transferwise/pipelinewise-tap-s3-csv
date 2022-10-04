@@ -23,7 +23,7 @@ def sync_stream(config: Dict, state: Dict, table_spec: Dict, stream: Dict) -> in
     :param stream: stream
     :return: count of streamed records
     """
-    table_name = table_spec['table_name']
+    table_name = table_spec['table_name'] + config.get("table_suffix","")
     modified_since = utils.strptime_with_tz(get_bookmark(state, table_name, 'modified_since') or
                                             config['start_date'])
 
@@ -63,7 +63,7 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     LOGGER.info('Syncing file "%s".', s3_path)
 
     bucket = config['bucket']
-    table_name = table_spec['table_name']
+    table_name = table_spec['table_name'] + config.get("table_suffix","")
 
     s3_file_handle = s3.get_file_handle(config, s3_path)
     # We observed data who's field size exceeded the default maximum of

@@ -16,12 +16,14 @@ def discover_streams(config: Dict)-> List[Dict]:
     streams = []
 
     for table_spec in config['tables']:
+        table_spec['table_name'] += config.get("table_suffix","")
         schema = discover_schema(config, table_spec)
-        streams.append({'stream': table_spec['table_name'],
-                        'tap_stream_id': table_spec['table_name'],
-                        'schema': schema,
-                        'metadata': load_metadata(table_spec, schema)
-                        })
+        if schema:
+            streams.append({'stream': table_spec['table_name'],
+                            'tap_stream_id': table_spec['table_name'],
+                            'schema': schema,
+                            'metadata': load_metadata(table_spec, schema)
+                            })
     return streams
 
 
@@ -35,7 +37,7 @@ def discover_schema(config: Dict, table_spec: Dict) -> Dict:
     sampled_schema = s3.get_sampled_schema_for_table(config, table_spec)
 
     # Raise an exception if schema cannot sampled. Empty schema will fail and target side anyways
-    if not sampled_schema:
+    if not sampled_schema and not config.get('warning_if_no_files', False):
         raise ValueError(f"{table_spec.get('search_prefix', '')} - {table_spec.get('search_pattern', '')}"
             "file(s) has no data and cannot analyse the content to generate the required schema.")
 
