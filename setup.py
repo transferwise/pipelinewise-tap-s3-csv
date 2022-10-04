@@ -21,7 +21,7 @@ setup(name='pipelinewise-tap-s3-csv',
           'boto3==1.23.10',
           'pipelinewise-singer-python==2.0.*',
           # Public repository
-          'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings@feature/remove_singer_dependency',
+          'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings.git',
           'voluptuous==0.13.1',
           'ujson==5.2.0',
           'messytables==0.15.*',
