@@ -31,7 +31,7 @@ setup(name='pipelinewise-tap-s3-csv',
               'ipdb==0.13.9',
           ],
           'test': [
-              'pytest==7.1.*',
+              'pytest>=7.1,<7.3',
               'pylint==2.12.*',
               'pytest-cov==3.0.*'
           ]
