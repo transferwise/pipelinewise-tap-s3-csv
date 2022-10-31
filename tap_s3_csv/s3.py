@@ -9,6 +9,7 @@ import more_itertools
 import re
 import backoff
 import boto3
+from botocore.config import Config
 
 from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
@@ -208,7 +209,10 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in sorted(list_files_in_bucket(bucket, prefix, aws_endpoint_url=config.get('aws_endpoint_url')),
+    for s3_object in sorted(list_files_in_bucket(bucket,
+                                                prefix,
+                                                aws_endpoint_url=config.get('aws_endpoint_url'),
+                                                s3_proxies = config.get('s3_proxies')),
                             key=lambda item: item['LastModified'], reverse=False):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
@@ -254,19 +258,33 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
 
 
 @retry_pattern()
-def list_files_in_bucket(bucket: str, search_prefix: str = None, aws_endpoint_url: Optional[str] = None) -> Generator:
+def list_files_in_bucket(
+    bucket: str,
+    search_prefix: str = None,
+    aws_endpoint_url: Optional[str] = None,
+    s3_proxies: Optional[dict] = None) -> Generator:
     """
     Gets all files in the given S3 bucket that match the search prefix
     :param bucket: S3 bucket name
     :param search_prefix: search pattern
     :param aws_endpoint_url: optional aws url
+    :param s3_proxies: optional dict of proxies, set to {} to avoid using proxy servers
     :returns: generator containing all found files
     """
+
     # override default endpoint for non aws s3 services
     if aws_endpoint_url is not None:
-        s3_client = boto3.client('s3', endpoint_url=aws_endpoint_url)
+        if s3_proxies is None:
+            s3_client = boto3.client('s3', endpoint_url=aws_endpoint_url)
+        else:
+            # override proxies in environment variables to use config supplied proxies. Set to {} to not use proxy.
+            s3_client = boto3.client('s3', endpoint_url=aws_endpoint_url, config=Config(proxies=s3_proxies))
     else:
-        s3_client = boto3.client('s3')
+        if s3_proxies is None:
+            s3_client = boto3.client('s3')
+        else:
+            # override proxies in environment variables to use config supplied proxies. Set to {} to not use proxy.
+            s3_client = boto3.client('s3', config=Config(proxies=s3_proxies))
 
     s3_object_count = 0
 
@@ -303,12 +321,21 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     """
     bucket = config['bucket']
     aws_endpoint_url = config.get('aws_endpoint_url')
+    s3_proxies = config.get('s3_proxies')
 
     # override default endpoint for non aws s3 services
     if aws_endpoint_url is not None:
-        s3_client = boto3.resource('s3', endpoint_url=aws_endpoint_url)
+        if s3_proxies is None:
+            s3_client = boto3.resource('s3', endpoint_url=aws_endpoint_url)
+        else:
+            # override proxies in environment variables to use config supplied proxies. Set to {} to not use proxy.
+            s3_client = boto3.resource('s3', endpoint_url=aws_endpoint_url, config=Config(proxies=s3_proxies))
     else:
-        s3_client = boto3.resource('s3')
+        if s3_proxies is None:
+            s3_client = boto3.resource('s3')
+        else:
+            # override proxies in environment variables to use config supplied proxies. Set to {} to not use proxy.
+            s3_client = boto3.resource('s3', config=Config(proxies=s3_proxies))
 
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)

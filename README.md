@@ -46,6 +46,7 @@ Here is an example of basic config, that's using the default Profile based authe
         "bucket": "tradesignals-crawler",
         "warning_if_no_files": false,
         "table_suffix": "_extract1",
+        "s3_proxies": {"http": "http://mickeymouse.com:3128","https": "http://mickeymouse.com:3128"},
         "tables": [{
             "search_prefix": "feeds",
             "search_pattern": ".csv",
@@ -76,8 +77,9 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
-- **warning_if_no_files**: Will attempt to log a warning rather than error if there are no files found for the search criteria if the setting is set to `true`.
-- **table_suffix**: If set will append a suffix on each of the tables to provide some uniqueness e.g. a date or supplier identifier.
+- **warning_if_no_files**: (Optional): Will attempt to log a warning rather than error if there are no files found for the search criteria if the setting is set to `true`.
+- **table_suffix**: (Optional): If set will append a suffix on each of the tables to provide some uniqueness e.g. a date or supplier identifier.
+- **s3_proxies**: (Optional): A dict of proxies settings for use of a proxy server. Set to {} to avoid using a proxy server for s3 traffic.
 - **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
 
 The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:

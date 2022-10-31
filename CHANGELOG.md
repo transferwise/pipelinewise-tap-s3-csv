@@ -1,3 +1,9 @@
+2.0.7 (2022-11-01)
+------------------
+
+**Changes**
+  - Providing an optional s3_proxies dict config to set the use of a proxy server. Set to {} to avoid using a proxy server for s3 traffic.
+
 2.0.6 (2022-10-05)
 ------------------
 
