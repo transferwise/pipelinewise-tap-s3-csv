@@ -91,7 +91,7 @@ def main() -> None:
     config['tables'] = CONFIG_CONTRACT(config.get('tables', {}))
 
     try:
-        for _ in s3.list_files_in_bucket(config['bucket']):
+        for _ in s3.list_files_in_bucket(config['bucket'],s3_proxies = config.get('s3_proxies')):
             break
         LOGGER.warning("I have direct access to the bucket without assuming the configured role.")
     except Exception:
