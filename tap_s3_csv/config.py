@@ -12,5 +12,6 @@ CONFIG_CONTRACT = Schema([{
     Optional('string_overrides'): [str],
     Optional('delimiter'): str,
     Optional('table_suffix'): str,
-    Optional('remove_character'): str
+    Optional('remove_character'): str,
+    Optional('s3_proxies'): object
 }])
