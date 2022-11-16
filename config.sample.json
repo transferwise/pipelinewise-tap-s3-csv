@@ -8,6 +8,7 @@
         "search_pattern": ".csv",
         "table_name": "my_table",
         "key_properties": ["id"],
-        "delimiter": ","
+        "delimiter": ",",
+        "encoding": "iso-8859-1"
     }]
 }
