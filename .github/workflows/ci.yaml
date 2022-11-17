@@ -23,7 +23,7 @@ jobs:
       - name: Start Minio server
         run: |
           mkdir -p ./minio/data/awesome_bucket
-          UID=$(id -u) GID=$(id -g) docker-compose up -d
+          GID=$(id -g) docker-compose up -d
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
