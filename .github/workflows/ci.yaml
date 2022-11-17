@@ -35,8 +35,4 @@ jobs:
         run: make unit_tests
 
       - name: Integration Tests
-        env:
-          TAP_S3_CSV_ACCESS_KEY_ID: ${{ secrets.TAP_S3_CSV_ACCESS_KEY_ID }}
-          TAP_S3_CSV_SECRET_ACCESS_KEY: ${{ secrets.TAP_S3_CSV_SECRET_ACCESS_KEY }}
-          TAP_S3_CSV_BUCKET: ${{ secrets.TAP_S3_CSV_BUCKET }}
         run: make integration_tests
