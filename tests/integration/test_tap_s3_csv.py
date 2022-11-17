@@ -1,8 +1,6 @@
 import contextlib
-import datetime
 import io
 import os.path
-import random
 import unittest
 import boto3
 import ujson
@@ -22,6 +20,7 @@ class TestTapS3Csv(unittest.TestCase):
     """
     Integration Tests
     """
+    s3_client = None
     obj_name = None
     config = None
     maxDiff = None
@@ -49,7 +48,7 @@ class TestTapS3Csv(unittest.TestCase):
         )
 
         # upload test file to bucket
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client('s3', endpoint_url=cls.config['aws_endpoint_url'])
         s3_client.upload_file(file_name, cls.config['bucket'], cls.obj_name)
 
         cls.expected_catalog = catalog = {
@@ -126,7 +125,7 @@ class TestTapS3Csv(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client('s3', endpoint_url=cls.config['aws_endpoint_url'])
         s3_client.delete_object(Bucket=cls.config['bucket'], Key=cls.obj_name)
 
     def test_discovery(self):
@@ -181,4 +180,4 @@ class TestTapS3Csv(unittest.TestCase):
 
         self.assertIsNotNone(lines[2]['time_extracted'])
 
-        self.assertEqual(100, sum(1 for line in lines if line['type']=='RECORD'))
+        self.assertEqual(100, sum(1 for line in lines if line['type'] == 'RECORD'))

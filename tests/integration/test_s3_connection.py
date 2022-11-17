@@ -21,7 +21,7 @@ class TestS3Connection(unittest.TestCase):
         self.config = test_utils.get_test_config()
 
     def assertListFiles(self):
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client('s3', endpoint_url=self.config.get('aws_endpoint_url'))
         files = list(s3_client.list_objects_v2(Bucket=self.config['bucket']))
         self.assertTrue(isinstance(files, list))
 
