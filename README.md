@@ -107,6 +107,7 @@ The `table` field consists of one or more objects, that describe how to find fil
 - **date_overrides**: Specifies field names in the files that are supposed to be parsed as a datetime. The tap doesn't attempt to automatically determine if a field is a datetime, so this will make it explicit in the discovered schema.
 - **delimiter**: This allows you to specify a custom delimiter, such as `\t` or `|`, if that applies to your files.
 - **string_overrides**: Specifies field names in the files that should be parsed as a string regardless of what was discovered.
+- **guess_types**: (default `True`) By default, column data types will be determined via scanning the first file in a table_spec. Set this to `False` to disable this and set all columns to `string`.
 - **remove_character**: Specifies a character which can be removed from each line in the the file e.g. `"\""` will remove all double-quotes.
 - **encoding**: The encoding to use to read these files from [codecs -> Standard Encodings](https://docs.python.org/3/library/codecs.html#standard-encodings)
 
