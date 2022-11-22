@@ -7,7 +7,9 @@ import io
 from typing import Dict, List
 from messytables import CSVTableSet, headers_guess, headers_processor, offset_processor, type_guess
 from messytables.types import DecimalType, IntegerType
+from singer import get_logger
 
+LOGGER = get_logger('tap_s3_csv')
 
 def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
     """
@@ -53,6 +55,7 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
                         'type': ['null', 'string']
                     }
     else:
+        LOGGER.info(f"Type guessing is turned off (guess_types is False) - all columns will be str")
         for header in headers:
             schema[header] = {
                 'type': ['null', 'string']
