@@ -108,6 +108,7 @@ The `table` field consists of one or more objects, that describe how to find fil
 - **delimiter**: This allows you to specify a custom delimiter, such as `\t` or `|`, if that applies to your files.
 - **string_overrides**: Specifies field names in the files that should be parsed as a string regardless of what was discovered.
 - **remove_character**: Specifies a character which can be removed from each line in the the file e.g. `"\""` will remove all double-quotes.
+- **encoding**: The encoding to use to read these files from [codecs -> Standard Encodings](https://docs.python.org/3/library/codecs.html#standard-encodings)
 
 A sample configuration is available inside [config.sample.json](config.sample.json)
 
