@@ -2,8 +2,6 @@ import os
 
 
 def get_config():
-    config = {}
-
     # --------------------------------------------------------------------------
     # Default configuration settings for integration tests.
     # --------------------------------------------------------------------------
@@ -11,15 +9,14 @@ def get_config():
     # valid details to an S3 bucket
     # --------------------------------------------------------------------------
     # S3 bucket
-    config['aws_access_key_id'] = os.environ.get('TAP_S3_CSV_ACCESS_KEY_ID')
-    config['aws_secret_access_key'] = os.environ.get('TAP_S3_CSV_SECRET_ACCESS_KEY')
-    config['bucket'] = os.environ.get('TAP_S3_CSV_BUCKET')
-
-    # --------------------------------------------------------------------------
-    # The tests cases will change these values automatically whenever it's needed
-    # --------------------------------------------------------------------------
-    config['start_date'] = '2000-01-01'
-    config['tables'] = None
+    config = {
+        'aws_endpoint_url': os.environ.get('TAP_S3_CSV_ENDPOINT'),
+        'aws_access_key_id': os.environ.get('TAP_S3_CSV_ACCESS_KEY_ID'),
+        'aws_secret_access_key': os.environ.get('TAP_S3_CSV_SECRET_ACCESS_KEY'),
+        'bucket': os.environ.get('TAP_S3_CSV_BUCKET'),
+        'start_date': '2000-01-01',
+        'tables': None
+    }
 
     return config
 
