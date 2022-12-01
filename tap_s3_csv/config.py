@@ -10,6 +10,7 @@ CONFIG_CONTRACT = Schema([{
     Optional('search_prefix'): str,
     Optional('date_overrides'): [str],
     Optional('string_overrides'): [str],
+    Optional('guess_types'): bool,
     Optional('delimiter'): str,
     Optional('table_suffix'): str,
     Optional('remove_character'): str,
