@@ -1,3 +1,9 @@
+3.0.0 (2022-12-02)
+------------------
+
+**Changes**
+  - Dropping csv type columns' guessing logic using `messytables` library in favor of interpreting all columns as string to avoid type mismatch issues that break the tap/target.
+
 2.0.0 (2022-02-10)
 ------------------
 
