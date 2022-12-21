@@ -16,4 +16,5 @@ CONFIG_CONTRACT = Schema([{
     Optional('remove_character'): str,
     Optional('s3_proxies'): object,
     Optional('encoding'): str,
+    Optional('set_empty_values_null'): bool,
 }])
