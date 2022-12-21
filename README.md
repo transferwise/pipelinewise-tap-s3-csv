@@ -47,6 +47,7 @@ Here is an example of basic config, that's using the default Profile based authe
         "warning_if_no_files": false,
         "table_suffix": "_extract1",
         "s3_proxies": {"http": "http://mickeymouse.com:3128","https": "http://mickeymouse.com:3128"},
+        "set_empty_values_null": true,
         "tables": [{
             "search_prefix": "feeds",
             "search_pattern": ".csv",
@@ -80,7 +81,8 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **warning_if_no_files**: (Optional): Will attempt to log a warning rather than error if there are no files found for the search criteria if the setting is set to `true`.
 - **table_suffix**: (Optional): If set will append a suffix on each of the tables to provide some uniqueness e.g. a date or supplier identifier.
 - **s3_proxies**: (Optional): A dict of proxies settings for use of a proxy server. Set to {} to avoid using a proxy server for s3 traffic.
-- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
+- **set_empty_values_null**: (Optional): When set true will emit `null` (the JSON equivalent of None) instead of an empty string.
+- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files.
 
 The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:
 
