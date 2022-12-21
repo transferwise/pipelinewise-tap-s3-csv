@@ -1,3 +1,9 @@
+2.0.8 (2022-12-22)
+------------------
+
+**Changes**
+  - Providing an optional set_empty_values_null setting. When set true will emit null (the JSON equivalent of None) instead of an empty string.
+
 2.0.7 (2022-11-01)
 ------------------
 
