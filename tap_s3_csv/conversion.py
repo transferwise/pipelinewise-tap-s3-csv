@@ -72,10 +72,12 @@ def _csv2bytesio(data: List[Dict]) -> io.BytesIO:
     """
     with io.StringIO() as sio:
 
-        header = set()
+        header = []
 
+        # Create a unique list of headers
         for datum in data:
-            header.update(list(datum.keys()))
+            for item in datum:
+                header.append(item) if item not in header else None
 
         writer = csv.DictWriter(sio, fieldnames=header)
 

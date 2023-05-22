@@ -1,3 +1,9 @@
+2.0.9 (2023-05-23)
+------------------
+**Changes**
+  - Using a List rather than a Set when obtaining a unique list of columns in the spreadsheet. This
+  allows the column order to be retained as per the original csv file.
+
 2.0.8 (2022-12-22)
 ------------------
 
