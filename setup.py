@@ -18,7 +18,7 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'boto3==1.24.31',
+          'boto3==1.26.138',
           'pipelinewise-singer-python==2.0.*',
           # Public repository
           'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings.git',
