@@ -29,7 +29,7 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       extras_require={
           'dev': [
-              'ipdb==0.13.9',
+              'ipdb==0.13.13',
           ],
           'test': [
               'pytest==7.1.*',
