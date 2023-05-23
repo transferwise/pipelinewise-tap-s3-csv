@@ -148,7 +148,9 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
 
     sampled_row_count = 0
 
-    headers = iterator.fieldnames
+    headers = []
+    if iterator.fieldnames:
+        headers = iterator.fieldnames
 
     has_rows = False
 
