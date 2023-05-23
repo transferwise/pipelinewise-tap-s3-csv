@@ -148,7 +148,14 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
 
     sampled_row_count = 0
 
+    headers = []
+    if iterator.fieldnames:
+        headers = iterator.fieldnames
+
+    has_rows = False
+
     for row in iterator:
+        has_rows = True
         if (current_row % sample_rate) == 0:
             if row.get(SDC_EXTRA_COLUMN):
                 row.pop(SDC_EXTRA_COLUMN)
@@ -159,6 +166,12 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
             yield row
 
         current_row += 1
+
+    if not has_rows:
+        if headers:
+            LOGGER.info("No records, just empty file with headers. Yielding header row to create an empty file")
+            row = dict.fromkeys(headers)
+            yield row
 
     LOGGER.info("Sampled %s rows from %s",
                 sampled_row_count,

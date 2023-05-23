@@ -1,3 +1,8 @@
+2.0.11 (2023-05-23)
+------------------
+**Changes**
+  - Will output an empty file if there is just a header row and no records can be sampled.
+
 2.0.10 (2023-05-23)
 ------------------
 **Bumping Versions**
