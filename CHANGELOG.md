@@ -1,3 +1,13 @@
+3.0.1 (2023-07-03)
+------------------
+
+**Changes**
+   - Bump `boto3` from `1.26.21` to `1.26.165`
+
+**Fix**
+   - Filter out none standard storage class objects
+
+
 3.0.0 (2022-12-02)
 ------------------
 
