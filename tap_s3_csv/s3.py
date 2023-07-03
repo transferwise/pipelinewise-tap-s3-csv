@@ -295,12 +295,12 @@ def list_files_in_bucket(bucket: str, search_prefix: str = None, aws_endpoint_ur
         args['Prefix'] = search_prefix
 
     paginator = s3_client.get_paginator('list_objects_v2')
-    pages = 0
-    for page in paginator.paginate(**args):
-        pages += 1
-        LOGGER.debug("On page %s", pages)
-        s3_object_count += len(page.get('Contents', []))
-        yield from page.get('Contents', [])
+    page_iterator = paginator.paginate(**args)
+    filtered_s3_objects = page_iterator.search("Contents[?StorageClass=='STANDARD']")
+
+    for s3_obj in filtered_s3_objects:
+        s3_object_count += 1
+        yield s3_obj
 
     if s3_object_count > 0:
         LOGGER.info("Found %s files.", s3_object_count)
