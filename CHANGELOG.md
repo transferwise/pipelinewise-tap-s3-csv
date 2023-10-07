@@ -1,10 +1,19 @@
+2.0.12 (2023-10-07)
+-------------------
+**Bumping Versions**
+  - boto3==1.28.30
+  - pytest>=7.1,<7.5
+  - more_itertools>=8.12,<10.2
+  - ujson==5.8.0
+  - pytest-cov>=3.0,<4.2
+
 2.0.11 (2023-05-23)
-------------------
+-------------------
 **Changes**
   - Will output an empty file if there is just a header row and no records can be sampled.
 
 2.0.10 (2023-05-23)
-------------------
+-------------------
 **Bumping Versions**
   - boto3==1.26.138
   - ipdb==0.13.13
