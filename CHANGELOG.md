@@ -1,3 +1,9 @@
+2.0.13 (2023-10-07)
+-------------------
+**Changes**
+  - Moving to local copy of messytables to resolve Python 3.10 issues
+  - messytable https://github.com/okfn/messytables/pull/196
+
 2.0.12 (2023-10-07)
 -------------------
 **Bumping Versions**
