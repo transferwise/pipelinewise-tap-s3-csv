@@ -8,3 +8,6 @@ build/
 .vscode
 .venv
 .idea
+venv
+virtualenvs
+config.json

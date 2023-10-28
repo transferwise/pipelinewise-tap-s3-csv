@@ -7,17 +7,15 @@ import ujson
 import singer
 
 from typing import Dict
-from singer import metadata
+from singer import metadata, get_logger
 from tap_s3_csv.discover import discover_streams
 from tap_s3_csv import s3
 from tap_s3_csv.sync import sync_stream
 from tap_s3_csv.config import CONFIG_CONTRACT
 
-LOGGER = singer.get_logger()
+LOGGER = get_logger('tap_s3_csv')
 
 REQUIRED_CONFIG_KEYS = ["start_date", "bucket"] 
-# those 2 keys aren't required if you are using an AWS local profile
-#, "aws_access_key_id", "aws_secret_access_key"]
 
 
 def do_discover(config: Dict) -> None:

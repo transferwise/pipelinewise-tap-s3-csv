@@ -6,11 +6,12 @@ import sys
 import csv
 from typing import Dict
 
-from singer import metadata, get_logger, Transformer, utils, get_bookmark, write_bookmark, write_state, write_record
+from singer import metadata, Transformer, utils, get_bookmark, write_bookmark, write_state, write_record, get_logger
 from singer_encodings.csv import get_row_iterator # pylint:disable=no-name-in-module
+
 from tap_s3_csv import s3
 
-LOGGER = get_logger()
+LOGGER = get_logger('tap_s3_csv')
 
 
 def sync_stream(config: Dict, state: Dict, table_spec: Dict, stream: Dict) -> int:
@@ -88,6 +89,8 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
     records_synced = 0
 
     for row in iterator:
+        time_extracted = utils.now()
+
         custom_columns = {
             s3.SDC_SOURCE_BUCKET_COLUMN: bucket,
             s3.SDC_SOURCE_FILE_COLUMN: s3_path,
@@ -100,7 +103,7 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
         with Transformer() as transformer:
             to_write = transformer.transform(rec, stream['schema'], metadata.to_map(stream['metadata']))
 
-        write_record(table_name, to_write)
+        write_record(table_name, to_write, time_extracted=time_extracted)
         records_synced += 1
 
     return records_synced

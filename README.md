@@ -38,12 +38,10 @@ or
 
 ### Configuration
 
-Here is an example of basic config, and a bit of a run down on each of the properties:
+Here is an example of basic config, that's using the defualt Profile based authentication:
 
     ```json
     {
-        "aws_access_key_id": "ACCESS_KEY",
-        "aws_secret_access_key": "SECRET_ACCESS_KEY",
         "start_date": "2000-01-01T00:00:00Z",
         "bucket": "tradesignals-crawler",
         "tables": [{
@@ -55,8 +53,22 @@ Here is an example of basic config, and a bit of a run down on each of the prope
         }]
     }
     ```
-- **aws_access_key_id**: AWS access key ID
-- **aws_secret_access_key**: AWS secret access key
+
+### Profile based authentication
+
+Profile based authentication used by default using the `default` profile. To use another profile set `aws_profile` parameter in `config.json` or set the `AWS_PROFILE` environment variable.
+
+### Non-Profile based authentication
+
+For non-profile based authentication set `aws_access_key_id` , `aws_secret_access_key` and optionally the `aws_session_token` parameter in the `config.json`. Alternatively you can define them out of `config.json` by setting `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables.
+
+
+ A bit of a run down on each of the properties:
+
+- **aws_profile**: AWS Profile name for Profile based authentication. If not provided, `AWS_PROFILE` environment variable will be used.
+- **aws_access_key_id**: AWS access key ID for Non-Profile based authentication. If not provided, `AWS_ACCESS_KEY_ID` environment variable will be used.
+- **aws_secret_access_key**: AWS secret access key for Non-Profile based authentication. If not provided, `AWS_SECRET_ACCESS_KEY` environment variable will be used.
+- **aws_session_token**: AWS session token for Non-Profile based authentication. If not provided, `AWS_SESSION_TOKEN` environment variable will be used.
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
@@ -89,7 +101,36 @@ The `table` field consists of one or more objects, that describe how to find fil
 
 A sample configuration is available inside [config.sample.json](config.sample.json)
 
----
+### To run tests:
 
-Based on Stitch documentation
+1. Install python test dependencies in a virtual env and run nose unit and integration tests
+```
+  make venv
+```
 
+2. To run unit tests:
+```
+  make unit_tests
+```
+
+3. To run integration tests:
+
+Integration tests require a valid S3 bucket and credentials should be passed as environment variables, this project uses Minio server.
+
+Fist, start a Minio server docker container:
+```shell
+mkdir -p ./minio/data/awesome_bucket
+UID=$(id -u) GID=$(id -g) docker-compose up -d
+```
+
+Run integration tests:
+```shell
+  make integration_tests
+```
+
+### To run pylint:
+
+1. Install python dependencies and run python linter
+```
+  make venv pylint
+```

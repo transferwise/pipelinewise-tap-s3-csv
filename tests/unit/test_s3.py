@@ -1,9 +1,9 @@
 import unittest
 
-from tap_s3_csv.conversion import generate_schema
+from tap_s3_csv.s3 import generate_schema
 
 
-class TestConversion(unittest.TestCase):
+class TestS3(unittest.TestCase):
     def test_generate_schema(self):
         samples = [
             dict(id='1', name='productA', added_at='2017/05/18 10:40:22', price='22.99', sold='true',
@@ -21,31 +21,17 @@ class TestConversion(unittest.TestCase):
 
         self.assertDictEqual({
             'id': {
-                'type': ['null', 'string', 'integer']
+                'type': ['null', 'string']
             },
             'name': {
                 'type': ['null', 'string']
             },
-            'added_at': {
-                'anyOf': [
-                    {'type': ['null', 'string'], 'format':'date-time'},
-                    {'type': ['null', 'string']}
-                ]
-            },
+            'added_at': {'type': ['null', 'string'], 'format': 'date-time'},
             'price': {
-                'type': ['null', 'string', 'number']
+                'type': ['null', 'string']
             },
             'sold': {
-                'type': ['null', 'string', 'boolean']
+                'type': ['null', 'string']
             },
-            'sold_at': {
-                'anyOf': [
-                    {'type': ['null', 'string'], 'format':'date'},
-                    {'type': ['null', 'string']}
-                ]
-            }
+            'sold_at': {'type': ['null', 'string']}
         }, schema)
-
-
-if __name__ == '__main__':
-    unittest.main()
