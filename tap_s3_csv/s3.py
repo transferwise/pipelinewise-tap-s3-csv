@@ -54,6 +54,7 @@ def setup_aws_client(config: Dict) -> None:
     Initialize a default AWS session
     :param config: connection config
     """
+    
     LOGGER.info("Attempting to create AWS session")
 
     # Get the required parameters from config file and/or environment variables
