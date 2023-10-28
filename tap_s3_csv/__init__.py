@@ -15,7 +15,7 @@ from tap_s3_csv.config import CONFIG_CONTRACT
 
 LOGGER = singer.get_logger()
 
-REQUIRED_CONFIG_KEYS = ["start_date", "bucket", "aws_access_key_id", "aws_secret_access_key"]
+REQUIRED_CONFIG_KEYS = ["start_date", "bucket"] #, "aws_access_key_id", "aws_secret_access_key"]
 
 
 def do_discover(config: Dict) -> None:

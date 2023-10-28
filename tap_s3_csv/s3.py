@@ -52,12 +52,12 @@ def setup_aws_client(config: Dict) -> None:
     Initialize a default AWS session
     :param config: connection config
     """
-    aws_access_key_id = config['aws_access_key_id']
-    aws_secret_access_key = config['aws_secret_access_key']
+    #aws_access_key_id = config['aws_access_key_id']
+    #aws_secret_access_key = config['aws_secret_access_key']
 
-    LOGGER.info("Attempting to create AWS session")
-    boto3.setup_default_session(aws_access_key_id=aws_access_key_id,
-                                aws_secret_access_key=aws_secret_access_key)
+    LOGGER.info("Not Attempting to create AWS session. Using local profile instead with Boto3")
+    #boto3.setup_default_session(aws_access_key_id=aws_access_key_id,
+    #                            aws_secret_access_key=aws_secret_access_key)
 
 
 def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
