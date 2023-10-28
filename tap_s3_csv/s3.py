@@ -150,7 +150,7 @@ def merge_dicts(first: Dict, second: Dict) -> Dict:
     return to_return
 
 
-def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) -> Generator:
+def sample_file(config, table_spec, s3_path, sample_rate):
     """
     Get a sample data from the given S3 file
     :param config:
