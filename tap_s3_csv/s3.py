@@ -162,19 +162,7 @@ def sample_file(config, table_spec, s3_path, sample_rate):
     """
     file_stream = get_file_stream(config, s3_path)
 
-    # csv.get_row_iterator will check key-properties exist in the csv
-    # so we need to give them the list minus the meta field such as SDC_SOURCE_FILE_COLUMN or others
-    reduced_table_spec = {}
-    reduced_table_spec["key_properties"] = table_spec.get("key_properties", []).copy()
-    if SDC_SOURCE_BUCKET_COLUMN in reduced_table_spec["key_properties"]:
-        reduced_table_spec["key_properties"].remove(SDC_SOURCE_BUCKET_COLUMN)
-    if SDC_SOURCE_FILE_COLUMN in reduced_table_spec["key_properties"]: 
-        reduced_table_spec["key_properties"].remove(SDC_SOURCE_FILE_COLUMN)
-    if SDC_SOURCE_LINENO_COLUMN in reduced_table_spec["key_properties"]: 
-        reduced_table_spec["key_properties"].remove(SDC_SOURCE_LINENO_COLUMN)
-
-
-    iterator = get_row_iterator(file_stream, reduced_table_spec) #pylint:disable=protected-access
+    iterator = get_row_iterator(file_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
 
