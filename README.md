@@ -44,6 +44,7 @@ Here is an example of basic config, that's using the defualt Profile based authe
     {
         "start_date": "2000-01-01T00:00:00Z",
         "bucket": "tradesignals-crawler",
+        "warning_if_no_files": false,
         "tables": [{
             "search_prefix": "feeds",
             "search_pattern": ".csv",
@@ -72,6 +73,7 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
+- **warning_if_no_files**: (Optional): Will attempt to log a warning rather than error if there are no files found for the search criteria if the setting is set to `true`.
 - **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
 
 The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:

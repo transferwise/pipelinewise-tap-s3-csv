@@ -211,7 +211,7 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
     :returns: generator containing all the found files
     """
     bucket = config['bucket']
-
+    warning_if_no_files = config.get('warning_if_no_files', False)
     prefix = table_spec.get('search_prefix')
     pattern = table_spec['search_pattern']
     try:
@@ -260,12 +260,17 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
                             matched_files_count, unmatched_files_count)
 
     if matched_files_count == 0:
-        if prefix:
-            raise Exception(
+        if warning_if_no_files:
+            LOGGER.warning(
                 f'No files found in bucket "{bucket}" that matches prefix "{prefix}" and pattern "{pattern}"'
             )
+        else:
+            if prefix:
+                raise Exception(
+                    f'No files found in bucket "{bucket}" that matches prefix "{prefix}" and pattern "{pattern}"'
+                )
 
-        raise Exception(f'No files found in bucket "{bucket}" that matches pattern "{pattern}"')
+            raise Exception(f'No files found in bucket "{bucket}" that matches pattern "{pattern}"')
 
 
 @retry_pattern()

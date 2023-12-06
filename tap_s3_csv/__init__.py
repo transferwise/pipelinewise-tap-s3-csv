@@ -28,10 +28,12 @@ def do_discover(config: Dict) -> None:
     LOGGER.info("Starting discover")
     streams = discover_streams(config)
     if not streams:
-        raise Exception("No streams found")
-    catalog = {"streams": streams}
-    ujson.dump(catalog, sys.stdout, indent=2)
-    LOGGER.info("Finished discover")
+        if not config.get('warning_if_no_files', False):
+            raise Exception("No streams found")
+    else:
+        catalog = {"streams": streams}
+        ujson.dump(catalog, sys.stdout, indent=2)
+        LOGGER.info("Finished discover")
 
 
 def stream_is_selected(meta_data: Dict) -> bool:
@@ -56,7 +58,11 @@ def do_sync(config: Dict, catalog: Dict, state: Dict) -> None:
     for stream in catalog['streams']:
         stream_name = stream['tap_stream_id']
         mdata = metadata.to_map(stream['metadata'])
-        table_spec = next(s for s in config['tables'] if s['table_name'] == stream_name)
+        try:
+            table_spec = next(s for s in config['tables'] if s['table_name'] + config.get("table_suffix","") == stream_name)
+        except StopIteration:
+            if not config.get('warning_if_no_files', False):
+                raise Exception(f"Expected table {stream_name} not found in catalog")
         if not stream_is_selected(mdata):
             LOGGER.info("%s: Skipping - not selected", stream_name)
             continue
@@ -70,6 +76,7 @@ def do_sync(config: Dict, catalog: Dict, state: Dict) -> None:
         LOGGER.info("%s: Completed sync (%s rows)", stream_name, counter_value)
 
     LOGGER.info('Done syncing.')
+
 
 
 @singer.utils.handle_top_exception(LOGGER)
