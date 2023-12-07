@@ -4,6 +4,7 @@ Syncing related functions
 
 import sys
 import csv
+import copy
 from typing import Dict
 
 from singer import metadata, Transformer, utils, get_bookmark, write_bookmark, write_state, write_record, get_logger
@@ -50,6 +51,28 @@ def sync_stream(config: Dict, state: Dict, table_spec: Dict, stream: Dict) -> in
 
     return records_streamed
 
+def set_empty_values_null(x):
+    """
+    Looks for empty values in the arg and sets to None. This will cause the 
+    results to be treated like a null value when dumped via json.dumps. This is how
+    data coming from a database looks. This is useful for targets like target-snowflake
+    values can be empty i.e. null in the database rather than an empty string.
+    """
+    ret = copy.deepcopy(x)
+    # Handle dictionaries, lists & tuples. Scrub all values
+    if isinstance(x, dict):
+        for k, v in ret.items():
+            ret[k] = set_empty_values_null(v)
+    if isinstance(x, (list, tuple)):
+        for k, v in enumerate(ret):
+            ret[k] = set_empty_values_null(v)
+    # If value is empty or all spaces convert to None
+    if x == '' or str(x).isspace():
+        ret = None
+    # Finished scrubbing
+    return ret
+
+
 
 def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) -> int:
     """
@@ -88,6 +111,8 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
             # index zero, +1 for header row
             s3.SDC_SOURCE_LINENO_COLUMN: records_synced + 2
         }
+        if config.get('set_empty_values_null', False):
+            row = set_empty_values_null(row)
         rec = {**row, **custom_columns}
 
         with Transformer() as transformer:
