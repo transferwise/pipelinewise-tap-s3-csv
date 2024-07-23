@@ -6,7 +6,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='pipelinewise-tap-s3-csv',
-      version='2.0.13',
+      version='2.1.0',
       description='Singer.io tap for extracting CSV files from S3 - PipelineWise compatible',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -18,13 +18,13 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'boto3==1.28.30',
-          'pipelinewise-singer-python==2.0.*',
+          'boto3==1.34.146',
+          'pipelinewise-singer-python @ git+https://github.com/s7clarke10/pipelinewise-singer-python@4.0.0',
           # Public repository
-          'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings.git',
-          'voluptuous==0.13.1',
-          'ujson==5.8.0',
-          'messytables @ git+https://github.com/s7clarke10/messytables.git',
+          'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings.git@v0.1.3',
+          'voluptuous==0.14.2',
+          'msgspec==0.18.0',
+          'messytables @ git+https://github.com/s7clarke10/messytables@0.15.4',
           'more_itertools>=8.12,<10.2',
       ],
       extras_require={
@@ -33,7 +33,7 @@ setup(name='pipelinewise-tap-s3-csv',
           ],
           'test': [
               'pytest>=7.1,<7.5',
-              'pylint>=2.12,<2.18',
+              'pylint>=2.12,<3.1',
               'pytest-cov>=3.0,<4.2'
           ]
       },
