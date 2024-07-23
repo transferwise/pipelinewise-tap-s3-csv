@@ -1,3 +1,10 @@
+2.1.0 (2024-07-23)
+-------------------
+**Changes**
+  - Patching boto3, voluptuous, messytables, pylint
+  - Replace ujson with msgspec
+  - Changing json serialisation with updated pipelinewise-singer-python (using msgspec)
+
 2.0.13 (2023-10-07)
 -------------------
 **Changes**

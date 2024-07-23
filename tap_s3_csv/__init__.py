@@ -3,7 +3,7 @@ Tap S3 csv main script
 """
 
 import sys
-import ujson
+import msgspec
 import singer
 
 from typing import Dict
@@ -32,7 +32,9 @@ def do_discover(config: Dict) -> None:
             raise Exception("No streams found")
     else:
         catalog = {"streams": streams}
-        ujson.dump(catalog, sys.stdout, indent=2)
+        catalog_json = msgspec.json.format(msgspec.json.encode(catalog), indent=2)
+        sys.stdout.buffer.write(catalog_json)
+        sys.stdout.buffer.flush()
         LOGGER.info("Finished discover")
 
 
