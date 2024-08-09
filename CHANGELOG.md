@@ -1,3 +1,8 @@
+2.1.2 (2024-08-09)
+-------------------
+**Changes**
+  - Updating to a pypi version of singer-python (realit-singer-python)
+
 2.1.1 (2024-07-23)
 -------------------
 **Changes**
