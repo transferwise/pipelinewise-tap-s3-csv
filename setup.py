@@ -18,12 +18,12 @@ setup(name='pipelinewise-tap-s3-csv',
       ],
       py_modules=['tap_s3_csv'],
       install_requires=[
-          'boto3==1.34.146',
+          'boto3==1.34.158',
           'realit-singer-python>=5.0.0',
           # Public repository
-          'singer-encodings @ git+https://github.com/s7clarke10/singer-encodings.git@v0.1.3',
+          'realit-singer-encodings>=2.1.0',
           'voluptuous==0.14.2',
-          'msgspec==0.18.0',
+          'msgspec==0.18.6',
           'messytables @ git+https://github.com/s7clarke10/messytables@0.15.4',
           'more_itertools>=8.12,<10.2',
       ],
@@ -32,9 +32,9 @@ setup(name='pipelinewise-tap-s3-csv',
               'ipdb==0.13.13',
           ],
           'test': [
-              'pytest>=7.1,<7.5',
+              'pytest>=7.1,<8.4',
               'pylint>=2.12,<3.3',
-              'pytest-cov>=3.0,<4.2'
+              'pytest-cov>=3.0,<5.1'
           ]
       },
       entry_points='''
