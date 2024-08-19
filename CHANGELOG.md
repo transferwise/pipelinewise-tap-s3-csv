@@ -1,3 +1,10 @@
+3.0.0 (2024-08-19)
+-------------------
+**Breaking Changes**
+  - Deprecating messytables and defaulting headers by default to string datatype
+  - Adding ci tests and minio to run integration tests against pseduo s3 bucket
+  - Fix to exclude filter out glacier objects from ingestion
+
 2.1.2 (2024-08-09)
 -------------------
 **Changes**
