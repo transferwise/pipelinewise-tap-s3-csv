@@ -129,13 +129,16 @@ A sample configuration is available inside [config.sample.json](config.sample.js
 
 3. To run integration tests:
 
-Integration tests require a valid S3 bucket and credentials should be passed as environment variables:
+Integration tests require a valid S3 bucket and credentials should be passed as environment variables, this project uses Minio server.
 
+First, start a Minio server docker container:
+```shell
+mkdir -p ./minio/data/awesome_bucket
+UID=$(id -u) GID=$(id -g) docker-compose up -d
 ```
-  export TAP_S3_CSV_ACCESS_KEY_ID=<s3-access-key-id>
-  export TAP_S3_CSV_SECRET_ACCESS_KEY=<s3-secret-access-key>
-  export TAP_S3_CSV_BUCKET=<s3-bucket>
 
+Run integration tests:
+```shell
   make integration_tests
 ```
 
