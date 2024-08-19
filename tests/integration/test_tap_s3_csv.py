@@ -12,11 +12,7 @@ from copy import deepcopy
 
 from tap_s3_csv import do_discover, do_sync
 
-try:
-    import tests.utils as test_utils
-except ImportError:
-    import utils as test_utils
-
+from .utils import get_test_config
 
 class TestTapS3Csv(unittest.TestCase):
     """
@@ -29,7 +25,7 @@ class TestTapS3Csv(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.config = test_utils.get_test_config()
+        cls.config = get_test_config()
         random_prefix = f'tap_s3_csv_test_data_{random.randint(1, 10000)}'
 
         cls.config['tables'] = [{
@@ -37,7 +33,8 @@ class TestTapS3Csv(unittest.TestCase):
             "search_pattern": "users.csv",
             "table_name": "users",
             "key_properties": ["id"],
-            "delimiter": ","
+            "delimiter": ",",
+            "date_overrides": ["birth_date"]
         }]
 
         file_name = os.path.join(os.path.dirname(__file__), 'mock_data.csv')
@@ -52,7 +49,7 @@ class TestTapS3Csv(unittest.TestCase):
         s3_client = boto3.client('s3')
         s3_client.upload_file(file_name, cls.config['bucket'], cls.obj_name)
 
-        cls.expected_catalog = catalog = {
+        cls.expected_catalog = {
             "streams": [
                 {
                     "stream": "users",
@@ -75,7 +72,8 @@ class TestTapS3Csv(unittest.TestCase):
                                 "type": "integer"
                             },
                             "birth_date": {
-                                "type": ['null', "string"]
+                                "type": ['null', "string"],
+                                "format": "date-time"
                             },
                             "email": {
                                 "type": ['null', "string"]
@@ -84,7 +82,7 @@ class TestTapS3Csv(unittest.TestCase):
                                 "type": ['null', "string"]
                             },
                             "id": {
-                                "type": ['null', "integer"]
+                                "type": ['null', "string"]
                             },
                             "ip_address": {
                                 "type": ['null', "string"]
@@ -168,16 +166,16 @@ class TestTapS3Csv(unittest.TestCase):
                 '_sdc_source_bucket': self.config['bucket'],
                 '_sdc_source_file': self.obj_name,
                 '_sdc_source_lineno': 2,
-                'birth_date': '1/22/1971',
+                'birth_date': '1971-01-22T00:00:00.000000Z',
                 'email': 'gmackney0@china.com.cn',
                 'first_name': 'Ginger',
-                'id': 1,
+                'id': '1',
                 'ip_address': '180.48.88.217',
                 'is_pensioneer': 'true',
                 'gender': 'Male',
                 'group': '90',
                 'last_name': 'Mackney',
-        }, lines[2]['record'])
+        }, lines[2]['record'], lines[2]['record'])
 
         self.assertIsNotNone(lines[2]['time_extracted'])
 

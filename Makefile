@@ -10,8 +10,8 @@ pylint:
 
 unit_tests:
 	. ./venv/bin/activate ;\
-	pytest tests/unit --cov=tap_s3_csv --cov-fail-under=0
+	pytest tests/unit --cov=tap_s3_csv --cov-fail-under=30
 
 integration_tests:
 	. ./venv/bin/activate ;\
-	pytest tests/integration
+	pytest tests/integration --cov=tap_s3_csv --cov-fail-under=84

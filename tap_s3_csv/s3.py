@@ -11,12 +11,11 @@ import backoff
 import boto3
 from botocore.config import Config
 
-from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
 from singer import get_logger, utils
+from typing import Dict, Generator, Optional, Iterator, List
 
-from tap_s3_csv import conversion
 
 LOGGER = get_logger('tap_s3_csv')
 
@@ -101,12 +100,33 @@ def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
         SDC_EXTRA_COLUMN: {'type': 'array', 'items': {'type': 'string'}},
     }
 
-    data_schema = conversion.generate_schema(samples, table_spec)
+    data_schema = generate_schema(samples, table_spec)
 
     return {
         'type': 'object',
         'properties': merge_dicts(data_schema, metadata_schema)
     }
+
+
+def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
+    """
+    Build json schema, all columns in the headers would be string.
+    with format date-time if date_overrides has been configured for the table.
+    :param samples: List of dictionaries containing samples data from csv file(s)
+    :param table_spec: table/stream specs given in the tap definition
+    :return: json schema dictionary representing  the table
+    """
+    schema = {}
+    date_overrides = set(table_spec.get('date_overrides', []))
+
+    for sample in samples:
+        for header in sample.keys():
+            schema[header] = {'type': ['null', 'string']}
+
+            if header in date_overrides:
+                schema[header]['format'] = 'date-time'
+
+    return schema
 
 
 def merge_dicts(first: Dict, second: Dict) -> Dict:

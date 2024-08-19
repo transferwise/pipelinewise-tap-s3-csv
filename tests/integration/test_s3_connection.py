@@ -1,14 +1,11 @@
 import os
 import unittest
-import botocore
+import botocore.exceptions
 import boto3
 
 from tap_s3_csv import s3
 
-try:
-    import tests.utils as test_utils
-except ImportError:
-    import utils as test_utils
+from .utils import get_test_config
 
 
 class TestS3Connection(unittest.TestCase):
@@ -18,7 +15,7 @@ class TestS3Connection(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.config = test_utils.get_test_config()
+        self.config = get_test_config()
 
     def assertListFiles(self):
         s3_client = boto3.client('s3')
@@ -33,9 +30,9 @@ class TestS3Connection(unittest.TestCase):
     def test_credentials_aws_env_vars(self):
         """Test connecting to S3 with credentials defined in AWS environment variables
         rather than explicitly provided access keys"""
+        # Save original config to restore later
+        orig_config = self.config.copy()
         try:
-            # Save original config to restore later
-            orig_config = self.config.copy()
 
             # Move aws access key and secret from config into environment variables
             os.environ['AWS_ACCESS_KEY_ID'] = self.config['aws_access_key_id']
@@ -55,9 +52,10 @@ class TestS3Connection(unittest.TestCase):
 
     def test_profile_based_auth(self):
         """Test AWS profile based authentication rather than access keys"""
+        # Save original config to restore later
+        orig_config = self.config.copy()
+
         try:
-            # Save original config to restore later
-            orig_config = self.config.copy()
 
             # Remove access keys from config and add profile name
             del self.config['aws_access_key_id']
@@ -74,9 +72,9 @@ class TestS3Connection(unittest.TestCase):
 
     def test_profile_based_auth_aws_env_vars(self):
         """Test AWS profile based authentication using AWS environment variables"""
+        # Save original config to restore later
+        orig_config = self.config.copy()
         try:
-            # Save original config to restore later
-            orig_config = self.config.copy()
 
             # Remove access keys from config and add profile name
             del self.config['aws_access_key_id']
