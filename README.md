@@ -1,3 +1,10 @@
+# Notice
+To better serve Wise business and customer needs, the PipelineWise codebase needs to shrink.
+We have made the difficult decision that, going forward many components of PipelineWise will be removed or incorporated in the main repo.
+The last version before this decision is [v0.64.1](https://github.com/transferwise/pipelinewise/tree/v0.64.1)
+
+We thank all in the open-source community, that over the past 6 years, have helped to make PipelineWise a robust product for heterogeneous replication of many many Terabytes, daily
+
 # pipelinewise-tap-s3-csv
 
 [![PyPI version](https://badge.fury.io/py/pipelinewise-tap-s3-csv.svg)](https://badge.fury.io/py/pipelinewise-tap-s3-csv)
@@ -72,7 +79,7 @@ For non-profile based authentication set `aws_access_key_id` , `aws_secret_acces
 - **aws_endpoint_url**: (Optional): The complete URL to use for the constructed client. Normally, botocore will automatically construct the appropriate URL to use when communicating with a service. You can specify a complete URL (including the "http/https" scheme) to override this behavior. For example https://nyc3.digitaloceanspaces.com
 - **start_date**: This is the datetime that the tap will use to look for newly updated or created files, based on the modified timestamp of the file.
 - **bucket**: The name of the bucket to search for files under.
-- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files. 
+- **tables**: JSON object that the tap will use to search for files, and emit records as "tables" from those files.
 
 The `table` field consists of one or more objects, that describe how to find files and emit records. A more detailed (and unescaped) example below:
 
