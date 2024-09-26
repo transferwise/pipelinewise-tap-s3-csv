@@ -7,6 +7,7 @@ CONFIG_CONTRACT = Schema([{
     Required('table_name'): str,
     Required('search_pattern'): str,
     Optional('key_properties'): [str],
+    Optional('exclude_properties'): [str],
     Optional('search_prefix'): str,
     Optional('date_overrides'): [str],
     Optional('delimiter'): str

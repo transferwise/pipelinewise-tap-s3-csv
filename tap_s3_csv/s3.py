@@ -9,6 +9,10 @@ import more_itertools
 import re
 import backoff
 import boto3
+import copy
+import singer
+import io
+import zipfile
 
 from botocore.exceptions import ClientError
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
@@ -50,6 +54,7 @@ def setup_aws_client(config: Dict) -> None:
     Initialize a default AWS session
     :param config: connection config
     """
+    
     LOGGER.info("Attempting to create AWS session")
 
     # Get the required parameters from config file and/or environment variables
@@ -146,7 +151,7 @@ def merge_dicts(first: Dict, second: Dict) -> Dict:
     return to_return
 
 
-def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) -> Generator:
+def sample_file(config, table_spec, s3_path, sample_rate):
     """
     Get a sample data from the given S3 file
     :param config:
@@ -155,9 +160,9 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
     :param sample_rate:
     :return: generator containing the samples as dictionaries
     """
-    file_handle = get_file_handle(config, s3_path)
-    # _raw_stream seems like the wrong way to access this..
-    iterator = get_row_iterator(file_handle._raw_stream, table_spec)  # pylint:disable=protected-access
+    file_stream = get_file_stream(config, s3_path)
+
+    iterator = get_row_iterator(file_stream, table_spec) #pylint:disable=protected-access
 
     current_row = 0
 
@@ -328,3 +333,31 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     s3_bucket = s3_client.Bucket(bucket)
     s3_object = s3_bucket.Object(s3_path)
     return s3_object.get()['Body']
+
+def get_file_stream(config: Dict, s3_path: str) -> Iterator:
+    """
+    Get file stream to the file located in the s3 path.
+    It automatically decompress the file if it is zipped.
+    :param config: tap config
+    :param s3_path: file path in S3
+    :return: file stream
+    """
+    file_handle = get_file_handle(config, s3_path)
+    # if csv is zipped, unzip it
+    stream = None
+    if s3_path.endswith('zip'):
+        LOGGER.info('decompress stream')
+        stream = stream_zip_decompress(file_handle._raw_stream)
+    else:
+        stream = file_handle._raw_stream
+    return stream
+
+def stream_zip_decompress(stream: Iterator) -> Iterator:
+    """
+    Decompress first file of a zipped file stream
+    :param stream: file stream
+    :return: uncompressed file stream
+    """
+    buffer = io.BytesIO(stream.read())
+    file = zipfile.ZipFile(buffer)
+    return file.open(file.infolist()[0])
