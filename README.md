@@ -61,6 +61,9 @@ Here is an example of basic config, that's using the defualt Profile based authe
     }
     ```
 
+### Unsigned authentication
+If you need to tap only public buckets, you can use the `unsigned` authentication method. This method doesn't require any credentials, but it's only available for public buckets.
+
 ### Profile based authentication
 
 Profile based authentication used by default using the `default` profile. To use another profile set `aws_profile` parameter in `config.json` or set the `AWS_PROFILE` environment variable.

@@ -9,11 +9,14 @@ import more_itertools
 import re
 import backoff
 import boto3
+import botocore.session as botocore_session
 
 from botocore.exceptions import ClientError
+from botocore import UNSIGNED
+from botocore.config import Config
 from singer_encodings.csv import get_row_iterator, SDC_EXTRA_COLUMN  # pylint:disable=no-name-in-module
 from singer import get_logger, utils
-from typing import Dict, Generator, Optional, Iterator, List
+from typing import Dict, Generator, Iterator, List
 
 
 LOGGER = get_logger('tap_s3_csv')
@@ -57,7 +60,11 @@ def setup_aws_client(config: Dict) -> None:
     aws_secret_access_key = config.get('aws_secret_access_key') or os.environ.get('AWS_SECRET_ACCESS_KEY')
     aws_session_token = config.get('aws_session_token') or os.environ.get('AWS_SESSION_TOKEN')
     aws_profile = config.get('aws_profile') or os.environ.get('AWS_PROFILE')
+    aws_unsigned = config.get('aws_unsigned')
 
+    # AWS unsigned. For public buckets only. Good for demo purposes.
+    if aws_unsigned:
+        boto3.setup_default_session(botocore_session=botocore_session.get_session())
     # AWS credentials based authentication
     if aws_access_key_id and aws_secret_access_key:
         boto3.setup_default_session(
@@ -228,7 +235,7 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
     matched_files_count = 0
     unmatched_files_count = 0
     max_files_before_log = 30000
-    for s3_object in sorted(list_files_in_bucket(bucket, prefix, aws_endpoint_url=config.get('aws_endpoint_url')),
+    for s3_object in sorted(list_files_in_bucket(config, prefix),
                             key=lambda item: item['LastModified'], reverse=False):
         key = s3_object['Key']
         last_modified = s3_object['LastModified']
@@ -269,16 +276,21 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
 
 
 @retry_pattern()
-def list_files_in_bucket(bucket: str, search_prefix: str = None, aws_endpoint_url: Optional[str] = None) -> Generator:
+def list_files_in_bucket(config: Dict, search_prefix: str = None) -> Generator:
     """
     Gets all files in the given S3 bucket that match the search prefix
-    :param bucket: S3 bucket name
+    :param config: tap config
     :param search_prefix: search pattern
-    :param aws_endpoint_url: optional aws url
     :returns: generator containing all found files
     """
+    bucket = config['bucket']
+    aws_endpoint_url = config.get('aws_endpoint_url')
+
+    # AWS unsigned. For public buckets only. Good for demo purposes.
+    if config.get('aws_unsigned'):
+        s3_client = boto3.client('s3', config=Config(signature_version=UNSIGNED))
     # override default endpoint for non aws s3 services
-    if aws_endpoint_url is not None:
+    elif aws_endpoint_url is not None:
         s3_client = boto3.client('s3', endpoint_url=aws_endpoint_url)
     else:
         s3_client = boto3.client('s3')
@@ -319,8 +331,11 @@ def get_file_handle(config: Dict, s3_path: str) -> Iterator:
     bucket = config['bucket']
     aws_endpoint_url = config.get('aws_endpoint_url')
 
+    # AWS unsigned. For public buckets only. Good for demo purposes.
+    if config.get('aws_unsigned'):
+        s3_client = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
     # override default endpoint for non aws s3 services
-    if aws_endpoint_url is not None:
+    elif aws_endpoint_url is not None:
         s3_client = boto3.resource('s3', endpoint_url=aws_endpoint_url)
     else:
         s3_client = boto3.resource('s3')
